@@ -5,5 +5,7 @@ public class AccountController {
     int b= 10;
     int c = a+b;
     int d = c-a;
+    int e = 123 + 2;
+
 
 }
