@@ -81,13 +81,15 @@ public class LoginPage {
         loginButton.setFont(new Font("Arial", Font.BOLD, 18));
         formGbc.gridx = 0;
         formGbc.gridy = 2;
+        formGbc.gridwidth = 2;
+        formGbc.anchor = GridBagConstraints.CENTER;
         formBackgroundPanel.add(loginButton, formGbc);
 
         // İptal butonu
         JButton cancelButton = new JButton("Cancel");
         cancelButton.setFont(new Font("Arial", Font.BOLD, 18));
         formGbc.gridx = 1;
-        formGbc.gridy = 2;
+        formGbc.gridy = 3;
         formBackgroundPanel.add(cancelButton, formGbc);
 
         // Alt bilgilendirici mesaj
@@ -95,7 +97,7 @@ public class LoginPage {
         footerLabel.setFont(new Font("Arial", Font.ITALIC, 16));
         footerLabel.setForeground(Color.WHITE);
         formGbc.gridx = 0;
-        formGbc.gridy = 3;
+        formGbc.gridy = 4;
         formGbc.gridwidth = 2;
         formBackgroundPanel.add(footerLabel, formGbc);
 
@@ -105,8 +107,38 @@ public class LoginPage {
         gbc.weighty = 1;
         backgroundPanel.add(formBackgroundPanel, gbc);
 
-
         frame.add(backgroundPanel);
+
+        // Butonların işlevleri
+        loginButton.addActionListener(e -> {
+            String email = emailField.getText();
+            String password = new String(passwordField.getPassword());
+
+            // Basit kullanıcı doğrulama
+            if (email.equals("admin") && password.equals("admin123")) {
+                JOptionPane.showMessageDialog(frame, "Welcome Admin!");
+                frame.dispose();
+                AdminDashboard.show(); // Admin Dashboard'a yönlendir
+            } else if (email.equals("student") && password.equals("student123")) {
+                JOptionPane.showMessageDialog(frame, "Welcome Student!");
+                frame.dispose();
+                StudentDashboard.show(); // Student Dashboard'a yönlendir
+            } else if (email.equals("instructor") && password.equals("instructor123")) {
+                JOptionPane.showMessageDialog(frame, "Welcome Instructor!");
+                frame.dispose();
+                InstructorDashboard.show(); // Instructor Dashboard'a yönlendir
+            } else {
+                JOptionPane.showMessageDialog(frame, "Invalid email or password!", "Login Failed", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+
+        cancelButton.addActionListener(e -> {
+            int confirm = JOptionPane.showConfirmDialog(frame, "Are you sure you want to exit?", "Exit Confirmation", JOptionPane.YES_NO_OPTION);
+            if (confirm == JOptionPane.YES_OPTION) {
+                frame.dispose();
+            }
+        });
+
         frame.setVisible(true);
     }
 }
