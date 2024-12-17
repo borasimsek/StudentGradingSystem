@@ -96,7 +96,14 @@ public class InstructorDashboard {
 
         myCoursesButton.addActionListener(e -> cardLayout.show(mainPanel, "My Courses"));
         gradingButton.addActionListener(e -> cardLayout.show(mainPanel, "Grading"));
-        logOutButton.addActionListener(e -> cardLayout.show(mainPanel, "Logout"));
+        logOutButton.addActionListener(e -> {
+            int confirm = JOptionPane.showConfirmDialog(frame, "Are you sure you want to log out?", "Log Out", JOptionPane.YES_NO_OPTION);
+            if (confirm == JOptionPane.YES_OPTION) {
+                frame.dispose(); // Close the current InstructorDashboard frame
+                LoginPage.main(null); // Redirect back to the Login Page
+            }
+        });
+
 
         viewRequestsButton.addActionListener(e -> JOptionPane.showMessageDialog(frame, "View Requests Placeholder"));
         assignedStudentsButton.addActionListener(e -> JOptionPane.showMessageDialog(frame, "Assigned Students Placeholder"));
