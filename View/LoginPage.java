@@ -122,7 +122,7 @@ public class LoginPage {
             } else if (email.equals("student") && password.equals("student123")) {
                 JOptionPane.showMessageDialog(frame, "Welcome Student!");
                 frame.dispose();
-                StudentDashboard.show(); // Student Dashboard'a yönlendir
+                //StudentDashboard.show(); // Student Dashboard'a yönlendir
             } else if (email.equals("instructor") && password.equals("instructor123")) {
                 JOptionPane.showMessageDialog(frame, "Welcome Instructor!");
                 frame.dispose();
