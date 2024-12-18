@@ -121,6 +121,7 @@ public class LoginPage {
                 AdminDashboard.show(); // Admin Dashboard'a yönlendir
             } else if (email.equals("student") && password.equals("student123")) {
                 JOptionPane.showMessageDialog(frame, "Welcome Student!");
+                StudentDashboard.show();
                 frame.dispose();
                 //StudentDashboard.show(); // Student Dashboard'a yönlendir
             } else if (email.equals("instructor") && password.equals("instructor123")) {
