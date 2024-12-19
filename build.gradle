@@ -13,6 +13,7 @@ dependencies {
 
 application {
     mainClass = 'com.example.sgs.Main' // Replace with your main class
+
 }
 
 java {
