@@ -12,6 +12,7 @@ public class LoginPage {
 
         // BackGroundPanel ile arka plan resmi ekle
         Image backgroundImage = new ImageIcon(LoginPage.class.getClassLoader().getResource("arkaplan.jpg")).getImage();
+
         JPanel backgroundPanel = new JPanel() {
             @Override
             protected void paintComponent(Graphics g) {
