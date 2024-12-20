@@ -1,4 +1,5 @@
 package com.example.sgs.Controller;
 
-public class AdminController {
+public class
+AdminController {
 }
