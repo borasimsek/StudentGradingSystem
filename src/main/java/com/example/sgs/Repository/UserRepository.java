@@ -137,22 +137,28 @@ public class UserRepository {
              ResultSet rs = stmt.executeQuery()) {
 
             while (rs.next()) {
-                User user = new User(
-                        rs.getInt("user_id"),                      // Kullanıcı ID
-                        rs.getString("email"),                    // Email
-                        null,                                      // Şifre, burada alınmıyor
-                        User.UserType.valueOf(rs.getString("user_type").toUpperCase()), // UserType Enum
-                        rs.getString("first_name"),               // Ad
-                        rs.getString("last_name")                 // Soyad
-                );
-                users.add(user);
+                try {
+                    User user = new User(
+                            rs.getInt("user_id"), // Kullanıcı ID
+                            rs.getString("email"), // Email
+                            null, // Şifreyi burada döndürmüyoruz
+                            User.UserType.valueOf(rs.getString("user_type").toUpperCase()), // Enum
+                            rs.getString("first_name"), // Ad
+                            rs.getString("last_name") // Soyad
+                    );
+                    users.add(user);
+                } catch (IllegalArgumentException e) {
+                    System.err.println("Invalid user_type found in database: " + rs.getString("user_type"));
+                }
             }
         } catch (SQLException e) {
             System.err.println("Error fetching users: " + e.getMessage());
             e.printStackTrace();
         }
+
         return users;
     }
+
 
     public boolean delete(int userId) {
         String query = "DELETE FROM users WHERE user_id = ?";
