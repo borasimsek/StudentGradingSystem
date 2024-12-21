@@ -165,11 +165,19 @@ public class AdminDashboard extends JFrame {
                 UserRepository userRepository = new UserRepository(DatabaseConnection.getConnection());
                 String hashedPassword = hashPassword(generatedPassword);
 
+                // Yeni kullanıcı oluştur
                 User newUser = new User(0, email, hashedPassword, User.UserType.valueOf(userType.toUpperCase()), userName, userSurname);
-                boolean isSaved = userRepository.save(newUser);
+                boolean isSaved = userRepository.save(newUser); // Kullanıcıyı kaydet
 
                 if (isSaved) {
-                    JOptionPane.showMessageDialog(null, "User Added Successfully!\nGenerated Password: " + generatedPassword);
+                    // Son eklenen user_id'yi al
+                    int userId = userRepository.getLastInsertedUserId();
+                    if (userId != -1) {
+                        userNumberLabel.setText("ID: " + userId); // User Number alanında göster
+                        JOptionPane.showMessageDialog(null, "User Added Successfully!\nGenerated Password: " + generatedPassword + "\nUser ID: " + userId);
+                    } else {
+                        JOptionPane.showMessageDialog(null, "User added but ID could not be retrieved.", "Warning", JOptionPane.WARNING_MESSAGE);
+                    }
                 } else {
                     JOptionPane.showMessageDialog(null, "Failed to add user. Try again.", "Error", JOptionPane.ERROR_MESSAGE);
                 }
@@ -181,7 +189,10 @@ public class AdminDashboard extends JFrame {
             // Formu sıfırla
             userNameField.setText("");
             userSurnameField.setText("");
+            emailLabel.setText("Email:");
+            userNumberLabel.setText("User Number:");
         });
+
 
         // Kullanıcı silme işlemi
         deleteUserButton.addActionListener(e -> {
@@ -251,23 +262,27 @@ public class AdminDashboard extends JFrame {
         String surname = surnameField.getText().trim().toLowerCase().replaceAll("\\s", "");
 
         // E-posta oluşturma
-        if (!name.isEmpty() && !surname.isEmpty()) {
+        if (!name.isEmpty() || !surname.isEmpty()) { // Sadece biri dolu olsa bile işlem yap
             String email = name + "." + surname + "@edu.tr";
             emailLabel.setText(email);
+
+            // Kullanıcı numarasını yalnızca bir şeyler yazılmaya başlanırsa güncelle
+            try {
+                UserRepository userRepository = new UserRepository(DatabaseConnection.getConnection());
+                int nextUserId = userRepository.getNextUserId(); // Tahmini sonraki ID
+                numberLabel.setText(String.valueOf(nextUserId)); // Yalnızca ID'yi göster
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                numberLabel.setText("Error"); // Hata durumu
+            }
         } else {
             emailLabel.setText("Email:");
+            numberLabel.setText(""); // Ad ve soyad tamamen boşsa User Number kısmını boş bırak
         }
-
-        // Kullanıcı numarası
-        String type = (String) typeDropdown.getSelectedItem();
-        String number = switch (type) {
-            case "Student" -> "S" + String.format("%05d", studentNumber);
-            case "Instructor" -> "I" + String.format("%05d", instructorNumber);
-            case "Admin" -> "A" + String.format("%05d", adminNumber);
-            default -> "U00000";
-        };
-        numberLabel.setText(number);
     }
+
+
+
 
     private static String generatePassword(String firstName, String lastName) {
         String namePart = firstName.toLowerCase() + lastName.toLowerCase();

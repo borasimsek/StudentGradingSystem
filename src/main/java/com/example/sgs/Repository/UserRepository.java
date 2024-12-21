@@ -69,30 +69,25 @@ public class UserRepository {
     public boolean save(User user) {
         String query = "INSERT INTO users (email, password_hash, user_type, first_name, last_name) VALUES (?, ?, ?, ?, ?)";
         try (PreparedStatement stmt = connection.prepareStatement(query)) {
-            // Set parameters
+            // Parametreleri ayarla
             stmt.setString(1, user.getEmail());
             stmt.setString(2, user.getPasswordHash());
             stmt.setString(3, user.getUserType().toString());
             stmt.setString(4, user.getFirstName());
             stmt.setString(5, user.getLastName());
 
-            // Execute update
+            // Kaydı çalıştır
             int rowsInserted = stmt.executeUpdate();
 
-            // Log success or failure
-            if (rowsInserted > 0) {
-                System.out.println("User saved successfully: " + user.getEmail());
-            } else {
-                System.err.println("Failed to save user: " + user.getEmail());
-            }
-
+            // Başarılı kayıt
             return rowsInserted > 0;
         } catch (SQLException e) {
             System.err.println("Error saving user: " + e.getMessage());
             e.printStackTrace();
         }
-        return false;
+        return false; // Hata durumunda false döndür
     }
+
 
     public List<User> findStudentsByInstructorAndTerm(int instructorId, int year, String term) {
         List<User> students = new ArrayList<>();
@@ -173,5 +168,34 @@ public class UserRepository {
             return false;
         }
     }
+
+    public int getLastInsertedUserId() {
+        String query = "SELECT LAST_INSERT_ID() AS last_id";
+        try (PreparedStatement stmt = connection.prepareStatement(query);
+             ResultSet rs = stmt.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt("last_id"); // Son eklenen user_id değerini döndür
+            }
+        } catch (SQLException e) {
+            System.err.println("Error fetching last inserted user ID: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return -1; // Hata durumunda -1 döndür
+    }
+
+    public int getNextUserId() {
+        String query = "SELECT MAX(user_id) AS max_id FROM users";
+        try (PreparedStatement stmt = connection.prepareStatement(query);
+             ResultSet rs = stmt.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt("max_id") + 1; // En yüksek ID'ye 1 ekleyerek döndür
+            }
+        } catch (SQLException e) {
+            System.err.println("Error fetching next user ID: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return 1; // Eğer hiç kullanıcı yoksa, ID 1'den başlat
+    }
+
 
 }
