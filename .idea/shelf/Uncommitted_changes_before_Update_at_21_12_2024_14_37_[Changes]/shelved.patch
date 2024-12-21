@@ -1,0 +1,680 @@
+Index: src/main/java/com/example/sgs/View/RegisterPage.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.example.sgs.View;\r\n\r\nimport com.example.sgs.DatabaseConnection;\r\nimport com.example.sgs.Service.AuthenticationService;\r\nimport com.example.sgs.Entities.User;\r\nimport com.example.sgs.Repository.UserRepository;\r\n\r\nimport javax.swing.*;\r\nimport java.awt.*;\r\nimport java.awt.event.ActionEvent;\r\nimport java.awt.event.ActionListener;\r\nimport java.sql.Connection;\r\nimport java.sql.DriverManager;\r\nimport java.sql.SQLException;\r\n\r\npublic class RegisterPage {\r\n\r\n    public RegisterPage() {\r\n        // Create the register frame\r\n        JFrame registerFrame = new JFrame(\"Student Grading System - Register\");\r\n        registerFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);\r\n        registerFrame.setExtendedState(JFrame.MAXIMIZED_BOTH); // Fullscreen\r\n\r\n        // Background Panel\r\n        Image backgroundImage = new ImageIcon(LoginPage.class.getClassLoader().getResource(\"arkaplan.jpg\")).getImage();\r\n        JPanel backgroundPanel = new JPanel() {\r\n            @Override\r\n            protected void paintComponent(Graphics g) {\r\n                super.paintComponent(g);\r\n                g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);\r\n            }\r\n        };\r\n        backgroundPanel.setLayout(new GridBagLayout());\r\n\r\n        GridBagConstraints gbc = new GridBagConstraints();\r\n        gbc.insets = new Insets(10, 10, 10, 10);\r\n        gbc.fill = GridBagConstraints.NONE;\r\n\r\n        // Title Label\r\n        JLabel headerLabel = new JLabel(\"Register\", SwingConstants.CENTER);\r\n        headerLabel.setFont(new Font(\"Arial\", Font.BOLD, 48));\r\n        headerLabel.setForeground(Color.WHITE);\r\n        gbc.gridx = 0;\r\n        gbc.gridy = 0;\r\n        gbc.anchor = GridBagConstraints.NORTH;\r\n        gbc.weighty = 0.1;\r\n        backgroundPanel.add(headerLabel, gbc);\r\n\r\n        // Form Background Panel\r\n        JPanel formBackgroundPanel = new JPanel();\r\n        formBackgroundPanel.setBackground(new Color(0, 51, 102, 200));\r\n        formBackgroundPanel.setLayout(new GridBagLayout());\r\n        formBackgroundPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));\r\n\r\n        GridBagConstraints formGbc = new GridBagConstraints();\r\n        formGbc.insets = new Insets(10, 10, 10, 10);\r\n        formGbc.fill = GridBagConstraints.HORIZONTAL;\r\n\r\n        // First Name Label\r\n        JLabel firstNameLabel = new JLabel(\"First Name:\");\r\n        firstNameLabel.setFont(new Font(\"Arial\", Font.PLAIN, 18));\r\n        firstNameLabel.setForeground(Color.WHITE);\r\n        formGbc.gridx = 0;\r\n        formGbc.gridy = 0;\r\n        formBackgroundPanel.add(firstNameLabel, formGbc);\r\n\r\n        // First Name Text Field\r\n        JTextField firstNameField = new JTextField(20);\r\n        firstNameField.setFont(new Font(\"Arial\", Font.PLAIN, 18));\r\n        formGbc.gridx = 1;\r\n        formGbc.gridy = 0;\r\n        formBackgroundPanel.add(firstNameField, formGbc);\r\n\r\n        // Last Name Label\r\n        JLabel lastNameLabel = new JLabel(\"Last Name:\");\r\n        lastNameLabel.setFont(new Font(\"Arial\", Font.PLAIN, 18));\r\n        lastNameLabel.setForeground(Color.WHITE);\r\n        formGbc.gridx = 0;\r\n        formGbc.gridy = 1;\r\n        formBackgroundPanel.add(lastNameLabel, formGbc);\r\n\r\n        // Last Name Text Field\r\n        JTextField lastNameField = new JTextField(20);\r\n        lastNameField.setFont(new Font(\"Arial\", Font.PLAIN, 18));\r\n        formGbc.gridx = 1;\r\n        formGbc.gridy = 1;\r\n        formBackgroundPanel.add(lastNameField, formGbc);\r\n\r\n        // Email Label\r\n        JLabel emailLabel = new JLabel(\"Email:\");\r\n        emailLabel.setFont(new Font(\"Arial\", Font.PLAIN, 18));\r\n        emailLabel.setForeground(Color.WHITE);\r\n        formGbc.gridx = 0;\r\n        formGbc.gridy = 2;\r\n        formBackgroundPanel.add(emailLabel, formGbc);\r\n\r\n        // Email Text Field\r\n        JTextField emailField = new JTextField(20);\r\n        emailField.setFont(new Font(\"Arial\", Font.PLAIN, 18));\r\n        formGbc.gridx = 1;\r\n        formGbc.gridy = 2;\r\n        formBackgroundPanel.add(emailField, formGbc);\r\n\r\n        // Password Label\r\n        JLabel passwordLabel = new JLabel(\"Password:\");\r\n        passwordLabel.setFont(new Font(\"Arial\", Font.PLAIN, 18));\r\n        passwordLabel.setForeground(Color.WHITE);\r\n        formGbc.gridx = 0;\r\n        formGbc.gridy = 3;\r\n        formBackgroundPanel.add(passwordLabel, formGbc);\r\n\r\n        // Password Field\r\n        JPasswordField passwordField = new JPasswordField(20);\r\n        passwordField.setFont(new Font(\"Arial\", Font.PLAIN, 18));\r\n        formGbc.gridx = 1;\r\n        formGbc.gridy = 3;\r\n        formBackgroundPanel.add(passwordField, formGbc);\r\n\r\n        // User Type Label\r\n        JLabel userTypeLabel = new JLabel(\"User Type:\");\r\n        userTypeLabel.setFont(new Font(\"Arial\", Font.PLAIN, 18));\r\n        userTypeLabel.setForeground(Color.WHITE);\r\n        formGbc.gridx = 0;\r\n        formGbc.gridy = 4;\r\n        formBackgroundPanel.add(userTypeLabel, formGbc);\r\n\r\n        // User Type Combo Box (Student, Instructor, Admin)\r\n        String[] userTypes = {\"STUDENT\", \"INSTRUCTOR\", \"ADMIN\"};\r\n        JComboBox<String> userTypeComboBox = new JComboBox<>(userTypes);\r\n        userTypeComboBox.setFont(new Font(\"Arial\", Font.PLAIN, 18));\r\n        formGbc.gridx = 1;\r\n        formGbc.gridy = 4;\r\n        formBackgroundPanel.add(userTypeComboBox, formGbc);\r\n\r\n        // Register Button\r\n        JButton registerButton = new JButton(\"Register\");\r\n        registerButton.setFont(new Font(\"Arial\", Font.BOLD, 18));\r\n        formGbc.gridx = 0;\r\n        formGbc.gridy = 5;\r\n        formGbc.gridwidth = 2;\r\n        formGbc.anchor = GridBagConstraints.CENTER;\r\n        formBackgroundPanel.add(registerButton, formGbc);\r\n\r\n        // Cancel Button\r\n        JButton cancelButton = new JButton(\"Cancel\");\r\n        cancelButton.setFont(new Font(\"Arial\", Font.BOLD, 18));\r\n        formGbc.gridx = 1;\r\n        formGbc.gridy = 6;\r\n        formBackgroundPanel.add(cancelButton, formGbc);\r\n\r\n        // Footer Label\r\n        JLabel footerLabel = new JLabel(\"Please fill in the details to register.\");\r\n        footerLabel.setFont(new Font(\"Arial\", Font.ITALIC, 16));\r\n        footerLabel.setForeground(Color.WHITE);\r\n        formGbc.gridx = 0;\r\n        formGbc.gridy = 7;\r\n        formGbc.gridwidth = 2;\r\n        formBackgroundPanel.add(footerLabel, formGbc);\r\n\r\n        gbc.gridx = 0;\r\n        gbc.gridy = 1;\r\n        gbc.anchor = GridBagConstraints.CENTER;\r\n        gbc.weighty = 1;\r\n        backgroundPanel.add(formBackgroundPanel, gbc);\r\n\r\n        registerFrame.add(backgroundPanel);\r\n\r\n        // Set up database connection and AuthenticationService\r\n        try {\r\n            Connection connection = DatabaseConnection.getConnection();\r\n            UserRepository userRepository = new UserRepository(connection);\r\n            AuthenticationService authenticationService = new AuthenticationService(userRepository);\r\n\r\n            // Action listener for the register button\r\n            registerButton.addActionListener(new ActionListener() {\r\n                @Override\r\n                public void actionPerformed(ActionEvent e) {\r\n                    String firstName = firstNameField.getText();\r\n                    String lastName = lastNameField.getText();\r\n                    String email = emailField.getText();\r\n                    String password = new String(passwordField.getPassword());\r\n                    String userTypeStr = (String) userTypeComboBox.getSelectedItem();\r\n                    User.UserType userType = User.UserType.valueOf(userTypeStr);\r\n\r\n                    // Simple validation\r\n                    if (firstName.isEmpty() || lastName.isEmpty() || email.isEmpty() || password.isEmpty()) {\r\n                        JOptionPane.showMessageDialog(registerFrame, \"All fields are required!\", \"Error\", JOptionPane.ERROR_MESSAGE);\r\n                        return;\r\n                    }\r\n\r\n                    // Register the user via AuthenticationService\r\n                    boolean registrationSuccessful = authenticationService.register(email, password, userType, firstName, lastName);\r\n\r\n                    if (registrationSuccessful) {\r\n                        JOptionPane.showMessageDialog(registerFrame, \"Registration successful!\", \"Success\", JOptionPane.INFORMATION_MESSAGE);\r\n                        registerFrame.dispose();  // Close the registration window\r\n                    } else {\r\n                        JOptionPane.showMessageDialog(registerFrame, \"Registration failed. Please try again.\", \"Error\", JOptionPane.ERROR_MESSAGE);\r\n                    }\r\n                }\r\n            });\r\n\r\n            // Action listener for the cancel button\r\n            cancelButton.addActionListener(e -> registerFrame.dispose());  // Close the registration window\r\n\r\n            registerFrame.setVisible(true); // Make the registration frame visible\r\n        } catch (Exception e) {\r\n            e.printStackTrace();\r\n            JOptionPane.showMessageDialog(registerFrame, \"Error connecting to the database\", \"Database Error\", JOptionPane.ERROR_MESSAGE);\r\n        }\r\n    }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/com/example/sgs/View/RegisterPage.java b/src/main/java/com/example/sgs/View/RegisterPage.java
+--- a/src/main/java/com/example/sgs/View/RegisterPage.java	(revision adaf199ae7a76e4dc0d53288a784061fa247e7ea)
++++ b/src/main/java/com/example/sgs/View/RegisterPage.java	(date 1734777781453)
+@@ -10,8 +10,6 @@
+ import java.awt.event.ActionEvent;
+ import java.awt.event.ActionListener;
+ import java.sql.Connection;
+-import java.sql.DriverManager;
+-import java.sql.SQLException;
+ 
+ public class RegisterPage {
+ 
+@@ -194,6 +192,9 @@
+                     if (registrationSuccessful) {
+                         JOptionPane.showMessageDialog(registerFrame, "Registration successful!", "Success", JOptionPane.INFORMATION_MESSAGE);
+                         registerFrame.dispose();  // Close the registration window
++
++                        // Open the login page
++                        SwingUtilities.invokeLater(() -> LoginPage.main(new String[0]));
+                     } else {
+                         JOptionPane.showMessageDialog(registerFrame, "Registration failed. Please try again.", "Error", JOptionPane.ERROR_MESSAGE);
+                     }
+Index: src/main/java/com/example/sgs/DatabaseConnection.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.example.sgs;\r\nimport java.sql.Connection;\r\nimport java.sql.DriverManager;\r\nimport java.sql.SQLException;\r\n\r\npublic class DatabaseConnection {\r\n\r\n    // Database URL, username, and password\r\n    private static final String URL = \"jdbc:mysql://127.0.0.1:3306/sgs\";\r\n    private static final String USER = \"root\"; //\r\n    private static final String PASSWORD = \"2023\"; //\r\n    private static Connection connection = null;\r\n    public static Connection getConnection() {\r\n        if (connection == null) {\r\n            try {\r\n                // Load and register MySQL JDBC driver\r\n                Class.forName(\"com.mysql.cj.jdbc.Driver\");\r\n\r\n                // Establish the connection\r\n                connection = DriverManager.getConnection(URL, USER, PASSWORD);\r\n            } catch (ClassNotFoundException | SQLException e) {\r\n                e.printStackTrace();\r\n                throw new RuntimeException(\"Failed to establish a database connection.\");\r\n            }\r\n        }\r\n        return connection;\r\n    }\r\n\r\n    // Close the connection (good practice to close it when done)\r\n    public static void closeConnection() {\r\n        if (connection != null) {\r\n            try {\r\n                connection.close();\r\n                System.out.println(\"Connection closed.\");\r\n            } catch (SQLException e) {\r\n                e.printStackTrace();\r\n            }\r\n        }\r\n    }\r\n\r\n\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/com/example/sgs/DatabaseConnection.java b/src/main/java/com/example/sgs/DatabaseConnection.java
+--- a/src/main/java/com/example/sgs/DatabaseConnection.java	(revision adaf199ae7a76e4dc0d53288a784061fa247e7ea)
++++ b/src/main/java/com/example/sgs/DatabaseConnection.java	(date 1734775282983)
+@@ -8,7 +8,7 @@
+     // Database URL, username, and password
+     private static final String URL = "jdbc:mysql://127.0.0.1:3306/sgs";
+     private static final String USER = "root"; //
+-    private static final String PASSWORD = "2023"; //
++    private static final String PASSWORD = "root"; //
+     private static Connection connection = null;
+     public static Connection getConnection() {
+         if (connection == null) {
+Index: .idea/jarRepositories.xml
+===================================================================
+diff --git a/.idea/jarRepositories.xml b/.idea/jarRepositories.xml
+deleted file mode 100644
+--- a/.idea/jarRepositories.xml	(revision adaf199ae7a76e4dc0d53288a784061fa247e7ea)
++++ /dev/null	(revision adaf199ae7a76e4dc0d53288a784061fa247e7ea)
+@@ -1,20 +0,0 @@
+-<?xml version="1.0" encoding="UTF-8"?>
+-<project version="4">
+-  <component name="RemoteRepositoriesConfiguration">
+-    <remote-repository>
+-      <option name="id" value="central" />
+-      <option name="name" value="Maven Central repository" />
+-      <option name="url" value="https://repo1.maven.org/maven2" />
+-    </remote-repository>
+-    <remote-repository>
+-      <option name="id" value="jboss.community" />
+-      <option name="name" value="JBoss Community repository" />
+-      <option name="url" value="https://repository.jboss.org/nexus/content/repositories/public/" />
+-    </remote-repository>
+-    <remote-repository>
+-      <option name="id" value="MavenRepo" />
+-      <option name="name" value="MavenRepo" />
+-      <option name="url" value="https://repo.maven.apache.org/maven2/" />
+-    </remote-repository>
+-  </component>
+-</project>
+\ No newline at end of file
+Index: .idea/.gitignore
+===================================================================
+diff --git a/.idea/.gitignore b/.idea/.gitignore
+deleted file mode 100644
+--- a/.idea/.gitignore	(revision adaf199ae7a76e4dc0d53288a784061fa247e7ea)
++++ /dev/null	(revision adaf199ae7a76e4dc0d53288a784061fa247e7ea)
+@@ -1,3 +0,0 @@
+-# Default ignored files
+-/shelf/
+-/workspace.xml
+Index: .idea/modules/StudentGradingSystem.iml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<module version=\"4\">\r\n  <component name=\"AdditionalModuleElements\">\r\n    <content url=\"file://$MODULE_DIR$/../..\" dumb=\"true\">\r\n      <sourceFolder url=\"file://$MODULE_DIR$/../../src\" isTestSource=\"false\" />\r\n    </content>\r\n  </component>\r\n</module>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/modules/StudentGradingSystem.iml b/.idea/modules/StudentGradingSystem.iml
+--- a/.idea/modules/StudentGradingSystem.iml	(revision adaf199ae7a76e4dc0d53288a784061fa247e7ea)
++++ b/.idea/modules/StudentGradingSystem.iml	(date 1734776219961)
+@@ -1,8 +1,13 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<module version="4">
+-  <component name="AdditionalModuleElements">
+-    <content url="file://$MODULE_DIR$/../.." dumb="true">
++<module external.linked.project.id="StudentGradingSystem" external.linked.project.path="$MODULE_DIR$/../.." external.root.project.path="$MODULE_DIR$/../.." external.system.id="GRADLE" external.system.module.group="" external.system.module.version="unspecified" type="JAVA_MODULE" version="4">
++  <component name="NewModuleRootManager" inherit-compiler-output="true">
++    <exclude-output />
++    <content url="file://$MODULE_DIR$/../..">
+       <sourceFolder url="file://$MODULE_DIR$/../../src" isTestSource="false" />
++      <excludeFolder url="file://$MODULE_DIR$/../../.gradle" />
++      <excludeFolder url="file://$MODULE_DIR$/../../build" />
+     </content>
++    <orderEntry type="inheritedJdk" />
++    <orderEntry type="sourceFolder" forTests="false" />
+   </component>
+ </module>
+\ No newline at end of file
+Index: .idea/modules/app/StudentGradingSystem.app.iml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/modules/app/StudentGradingSystem.app.iml b/.idea/modules/app/StudentGradingSystem.app.iml
+new file mode 100644
+--- /dev/null	(date 1734776208019)
++++ b/.idea/modules/app/StudentGradingSystem.app.iml	(date 1734776208019)
+@@ -0,0 +1,12 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<module external.linked.project.id=":app" external.linked.project.path="$MODULE_DIR$/../../../app" external.root.project.path="$MODULE_DIR$/../../.." external.system.id="GRADLE" external.system.module.group="StudentGradingSystem" external.system.module.version="unspecified" type="JAVA_MODULE" version="4">
++  <component name="NewModuleRootManager" inherit-compiler-output="true">
++    <exclude-output />
++    <content url="file://$MODULE_DIR$/../../../app">
++      <excludeFolder url="file://$MODULE_DIR$/../../../app/.gradle" />
++      <excludeFolder url="file://$MODULE_DIR$/../../../app/build" />
++    </content>
++    <orderEntry type="inheritedJdk" />
++    <orderEntry type="sourceFolder" forTests="false" />
++  </component>
++</module>
+\ No newline at end of file
+Index: .idea/modules/app/StudentGradingSystem.app.test.iml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/modules/app/StudentGradingSystem.app.test.iml b/.idea/modules/app/StudentGradingSystem.app.test.iml
+new file mode 100644
+--- /dev/null	(date 1734776208078)
++++ b/.idea/modules/app/StudentGradingSystem.app.test.iml	(date 1734776208078)
+@@ -0,0 +1,30 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<module external.linked.project.id=":app:test" external.linked.project.path="$MODULE_DIR$/../../../app" external.root.project.path="$MODULE_DIR$/../../.." external.system.id="GRADLE" external.system.module.group="StudentGradingSystem" external.system.module.type="sourceSet" external.system.module.version="unspecified" type="JAVA_MODULE" version="4">
++  <component name="NewModuleRootManager">
++    <output-test url="file://$MODULE_DIR$/../../../app/build/classes/java/test" />
++    <exclude-output />
++    <content url="file://$MODULE_DIR$/../../../app/src/test">
++      <sourceFolder url="file://$MODULE_DIR$/../../../app/src/test/java" isTestSource="true" />
++    </content>
++    <orderEntry type="jdk" jdkName="corretto-21" jdkType="JavaSDK" />
++    <orderEntry type="sourceFolder" forTests="false" />
++    <orderEntry type="module" module-name="StudentGradingSystem.app.main" />
++    <orderEntry type="library" name="Gradle: com.google.guava:guava:33.2.1-jre" level="project" />
++    <orderEntry type="library" name="Gradle: org.junit.jupiter:junit-jupiter:5.10.3" level="project" />
++    <orderEntry type="library" name="Gradle: com.google.guava:failureaccess:1.0.2" level="project" />
++    <orderEntry type="library" name="Gradle: com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava" level="project" />
++    <orderEntry type="library" name="Gradle: com.google.code.findbugs:jsr305:3.0.2" level="project" />
++    <orderEntry type="library" name="Gradle: org.checkerframework:checker-qual:3.42.0" level="project" />
++    <orderEntry type="library" name="Gradle: com.google.errorprone:error_prone_annotations:2.26.1" level="project" />
++    <orderEntry type="library" scope="PROVIDED" name="Gradle: com.google.j2objc:j2objc-annotations:3.0.0" level="project" />
++    <orderEntry type="library" name="Gradle: org.junit.jupiter:junit-jupiter-params:5.10.3" level="project" />
++    <orderEntry type="library" name="Gradle: org.junit.jupiter:junit-jupiter-api:5.10.3" level="project" />
++    <orderEntry type="library" scope="PROVIDED" name="Gradle: org.apiguardian:apiguardian-api:1.1.2" level="project" />
++    <orderEntry type="library" name="Gradle: org.junit.platform:junit-platform-commons:1.10.3" level="project" />
++    <orderEntry type="library" name="Gradle: org.opentest4j:opentest4j:1.3.0" level="project" />
++    <orderEntry type="library" scope="RUNTIME" name="Gradle: org.junit.platform:junit-platform-launcher:1.10.3" level="project" />
++    <orderEntry type="library" scope="RUNTIME" name="Gradle: org.junit.platform:junit-platform-engine:1.10.3" level="project" />
++    <orderEntry type="library" scope="RUNTIME" name="Gradle: org.junit.jupiter:junit-jupiter-engine:5.10.3" level="project" />
++  </component>
++  <component name="TestModuleProperties" production-module="StudentGradingSystem.app.main" />
++</module>
+\ No newline at end of file
+Index: .idea/modules/app/StudentGradingSystem.app.main.iml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/modules/app/StudentGradingSystem.app.main.iml b/.idea/modules/app/StudentGradingSystem.app.main.iml
+new file mode 100644
+--- /dev/null	(date 1734776208072)
++++ b/.idea/modules/app/StudentGradingSystem.app.main.iml	(date 1734776208072)
+@@ -0,0 +1,19 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<module external.linked.project.id=":app:main" external.linked.project.path="$MODULE_DIR$/../../../app" external.root.project.path="$MODULE_DIR$/../../.." external.system.id="GRADLE" external.system.module.group="StudentGradingSystem" external.system.module.type="sourceSet" external.system.module.version="unspecified" type="JAVA_MODULE" version="4">
++  <component name="NewModuleRootManager">
++    <output url="file://$MODULE_DIR$/../../../app/build/classes/java/main" />
++    <exclude-output />
++    <content url="file://$MODULE_DIR$/../../../app/src/main">
++      <sourceFolder url="file://$MODULE_DIR$/../../../app/src/main/java" isTestSource="false" />
++    </content>
++    <orderEntry type="jdk" jdkName="corretto-21" jdkType="JavaSDK" />
++    <orderEntry type="sourceFolder" forTests="false" />
++    <orderEntry type="library" name="Gradle: com.google.guava:guava:33.2.1-jre" level="project" />
++    <orderEntry type="library" name="Gradle: com.google.guava:failureaccess:1.0.2" level="project" />
++    <orderEntry type="library" name="Gradle: com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava" level="project" />
++    <orderEntry type="library" name="Gradle: com.google.code.findbugs:jsr305:3.0.2" level="project" />
++    <orderEntry type="library" name="Gradle: org.checkerframework:checker-qual:3.42.0" level="project" />
++    <orderEntry type="library" name="Gradle: com.google.errorprone:error_prone_annotations:2.26.1" level="project" />
++    <orderEntry type="library" scope="PROVIDED" name="Gradle: com.google.j2objc:j2objc-annotations:3.0.0" level="project" />
++  </component>
++</module>
+\ No newline at end of file
+Index: .idea/modules/StudentGradingSystem.test.iml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/modules/StudentGradingSystem.test.iml b/.idea/modules/StudentGradingSystem.test.iml
+new file mode 100644
+--- /dev/null	(date 1734776208065)
++++ b/.idea/modules/StudentGradingSystem.test.iml	(date 1734776208065)
+@@ -0,0 +1,14 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<module external.linked.project.id="StudentGradingSystem:test" external.linked.project.path="$MODULE_DIR$/../.." external.root.project.path="$MODULE_DIR$/../.." external.system.id="GRADLE" external.system.module.group="" external.system.module.type="sourceSet" external.system.module.version="unspecified" type="JAVA_MODULE" version="4">
++  <component name="NewModuleRootManager">
++    <output-test url="file://$MODULE_DIR$/../../build/classes/java/test" />
++    <exclude-output />
++    <content url="file://$MODULE_DIR$/../../src/test" />
++    <orderEntry type="jdk" jdkName="corretto-21" jdkType="JavaSDK" />
++    <orderEntry type="sourceFolder" forTests="false" />
++    <orderEntry type="module" module-name="StudentGradingSystem.main" />
++    <orderEntry type="library" name="Gradle: com.mysql:mysql-connector-j:8.0.33" level="project" />
++    <orderEntry type="library" name="Gradle: com.google.protobuf:protobuf-java:3.21.9" level="project" />
++  </component>
++  <component name="TestModuleProperties" production-module="StudentGradingSystem.main" />
++</module>
+\ No newline at end of file
+Index: .idea/modules/StudentGradingSystem.main.iml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/modules/StudentGradingSystem.main.iml b/.idea/modules/StudentGradingSystem.main.iml
+new file mode 100644
+--- /dev/null	(date 1734776208061)
++++ b/.idea/modules/StudentGradingSystem.main.iml	(date 1734776208061)
+@@ -0,0 +1,15 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<module external.linked.project.id="StudentGradingSystem:main" external.linked.project.path="$MODULE_DIR$/../.." external.root.project.path="$MODULE_DIR$/../.." external.system.id="GRADLE" external.system.module.group="" external.system.module.type="sourceSet" external.system.module.version="unspecified" type="JAVA_MODULE" version="4">
++  <component name="NewModuleRootManager">
++    <output url="file://$MODULE_DIR$/../../build/classes/java/main" />
++    <exclude-output />
++    <content url="file://$MODULE_DIR$/../../src/main">
++      <sourceFolder url="file://$MODULE_DIR$/../../src/main/java" isTestSource="false" />
++      <sourceFolder url="file://$MODULE_DIR$/../../src/main/resources" type="java-resource" />
++    </content>
++    <orderEntry type="jdk" jdkName="corretto-21" jdkType="JavaSDK" />
++    <orderEntry type="sourceFolder" forTests="false" />
++    <orderEntry type="library" name="Gradle: com.mysql:mysql-connector-j:8.0.33" level="project" />
++    <orderEntry type="library" name="Gradle: com.google.protobuf:protobuf-java:3.21.9" level="project" />
++  </component>
++</module>
+\ No newline at end of file
+Index: .idea/libraries/Gradle__com_google_code_findbugs_jsr305_3_0_2.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/libraries/Gradle__com_google_code_findbugs_jsr305_3_0_2.xml b/.idea/libraries/Gradle__com_google_code_findbugs_jsr305_3_0_2.xml
+new file mode 100644
+--- /dev/null	(date 1734775845889)
++++ b/.idea/libraries/Gradle__com_google_code_findbugs_jsr305_3_0_2.xml	(date 1734775845889)
+@@ -0,0 +1,10 @@
++<component name="libraryTable">
++  <library name="Gradle: com.google.code.findbugs:jsr305:3.0.2" type="java-imported" external-system-id="GRADLE">
++    <properties groupId="com.google.code.findbugs" artifactId="jsr305" version="3.0.2" baseVersion="3.0.2" />
++    <CLASSES>
++      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.google.code.findbugs/jsr305/3.0.2/25ea2e8b0c338a877313bd4672d3fe056ea78f0d/jsr305-3.0.2.jar!/" />
++    </CLASSES>
++    <JAVADOC />
++    <SOURCES />
++  </library>
++</component>
+\ No newline at end of file
+Index: .idea/libraries/Gradle__com_google_errorprone_error_prone_annotations_2_26_1.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/libraries/Gradle__com_google_errorprone_error_prone_annotations_2_26_1.xml b/.idea/libraries/Gradle__com_google_errorprone_error_prone_annotations_2_26_1.xml
+new file mode 100644
+--- /dev/null	(date 1734775845890)
++++ b/.idea/libraries/Gradle__com_google_errorprone_error_prone_annotations_2_26_1.xml	(date 1734775845890)
+@@ -0,0 +1,10 @@
++<component name="libraryTable">
++  <library name="Gradle: com.google.errorprone:error_prone_annotations:2.26.1" type="java-imported" external-system-id="GRADLE">
++    <properties groupId="com.google.errorprone" artifactId="error_prone_annotations" version="2.26.1" baseVersion="2.26.1" />
++    <CLASSES>
++      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.google.errorprone/error_prone_annotations/2.26.1/c1fde57694bdc14e8618899aaa6e857d9465d7de/error_prone_annotations-2.26.1.jar!/" />
++    </CLASSES>
++    <JAVADOC />
++    <SOURCES />
++  </library>
++</component>
+\ No newline at end of file
+Index: .idea/modules.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<project version=\"4\">\r\n  <component name=\"ProjectModuleManager\">\r\n    <modules>\r\n      <module fileurl=\"file://$PROJECT_DIR$/.idea/modules/StudentGradingSystem.iml\" filepath=\"$PROJECT_DIR$/.idea/modules/StudentGradingSystem.iml\" />\r\n    </modules>\r\n  </component>\r\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/modules.xml b/.idea/modules.xml
+--- a/.idea/modules.xml	(revision adaf199ae7a76e4dc0d53288a784061fa247e7ea)
++++ b/.idea/modules.xml	(date 1734776208082)
+@@ -3,6 +3,11 @@
+   <component name="ProjectModuleManager">
+     <modules>
+       <module fileurl="file://$PROJECT_DIR$/.idea/modules/StudentGradingSystem.iml" filepath="$PROJECT_DIR$/.idea/modules/StudentGradingSystem.iml" />
++      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/StudentGradingSystem.app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/StudentGradingSystem.app.iml" />
++      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/StudentGradingSystem.app.main.iml" filepath="$PROJECT_DIR$/.idea/modules/app/StudentGradingSystem.app.main.iml" />
++      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/StudentGradingSystem.app.test.iml" filepath="$PROJECT_DIR$/.idea/modules/app/StudentGradingSystem.app.test.iml" />
++      <module fileurl="file://$PROJECT_DIR$/.idea/modules/StudentGradingSystem.main.iml" filepath="$PROJECT_DIR$/.idea/modules/StudentGradingSystem.main.iml" />
++      <module fileurl="file://$PROJECT_DIR$/.idea/modules/StudentGradingSystem.test.iml" filepath="$PROJECT_DIR$/.idea/modules/StudentGradingSystem.test.iml" />
+     </modules>
+   </component>
+ </project>
+\ No newline at end of file
+Index: .idea/libraries/Gradle__com_google_guava_listenablefuture_9999_0_empty_to_avoid_conflict_with_guava.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/libraries/Gradle__com_google_guava_listenablefuture_9999_0_empty_to_avoid_conflict_with_guava.xml b/.idea/libraries/Gradle__com_google_guava_listenablefuture_9999_0_empty_to_avoid_conflict_with_guava.xml
+new file mode 100644
+--- /dev/null	(date 1734775845897)
++++ b/.idea/libraries/Gradle__com_google_guava_listenablefuture_9999_0_empty_to_avoid_conflict_with_guava.xml	(date 1734775845897)
+@@ -0,0 +1,10 @@
++<component name="libraryTable">
++  <library name="Gradle: com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava" type="java-imported" external-system-id="GRADLE">
++    <properties groupId="com.google.guava" artifactId="listenablefuture" version="9999.0-empty-to-avoid-conflict-with-guava" baseVersion="9999.0-empty-to-avoid-conflict-with-guava" />
++    <CLASSES>
++      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.google.guava/listenablefuture/9999.0-empty-to-avoid-conflict-with-guava/b421526c5f297295adef1c886e5246c39d4ac629/listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar!/" />
++    </CLASSES>
++    <JAVADOC />
++    <SOURCES />
++  </library>
++</component>
+\ No newline at end of file
+Index: .idea/libraries/Gradle__com_google_j2objc_j2objc_annotations_3_0_0.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/libraries/Gradle__com_google_j2objc_j2objc_annotations_3_0_0.xml b/.idea/libraries/Gradle__com_google_j2objc_j2objc_annotations_3_0_0.xml
+new file mode 100644
+--- /dev/null	(date 1734775845899)
++++ b/.idea/libraries/Gradle__com_google_j2objc_j2objc_annotations_3_0_0.xml	(date 1734775845899)
+@@ -0,0 +1,10 @@
++<component name="libraryTable">
++  <library name="Gradle: com.google.j2objc:j2objc-annotations:3.0.0" type="java-imported" external-system-id="GRADLE">
++    <properties groupId="com.google.j2objc" artifactId="j2objc-annotations" version="3.0.0" baseVersion="3.0.0" />
++    <CLASSES>
++      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.google.j2objc/j2objc-annotations/3.0.0/7399e65dd7e9ff3404f4535b2f017093bdb134c7/j2objc-annotations-3.0.0.jar!/" />
++    </CLASSES>
++    <JAVADOC />
++    <SOURCES />
++  </library>
++</component>
+\ No newline at end of file
+Index: .idea/libraries/Gradle__com_google_guava_failureaccess_1_0_2.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/libraries/Gradle__com_google_guava_failureaccess_1_0_2.xml b/.idea/libraries/Gradle__com_google_guava_failureaccess_1_0_2.xml
+new file mode 100644
+--- /dev/null	(date 1734775845893)
++++ b/.idea/libraries/Gradle__com_google_guava_failureaccess_1_0_2.xml	(date 1734775845893)
+@@ -0,0 +1,10 @@
++<component name="libraryTable">
++  <library name="Gradle: com.google.guava:failureaccess:1.0.2" type="java-imported" external-system-id="GRADLE">
++    <properties groupId="com.google.guava" artifactId="failureaccess" version="1.0.2" baseVersion="1.0.2" />
++    <CLASSES>
++      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.google.guava/failureaccess/1.0.2/c4a06a64e650562f30b7bf9aaec1bfed43aca12b/failureaccess-1.0.2.jar!/" />
++    </CLASSES>
++    <JAVADOC />
++    <SOURCES />
++  </library>
++</component>
+\ No newline at end of file
+Index: .idea/libraries/Gradle__com_google_guava_guava_33_2_1_jre.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/libraries/Gradle__com_google_guava_guava_33_2_1_jre.xml b/.idea/libraries/Gradle__com_google_guava_guava_33_2_1_jre.xml
+new file mode 100644
+--- /dev/null	(date 1734775845895)
++++ b/.idea/libraries/Gradle__com_google_guava_guava_33_2_1_jre.xml	(date 1734775845895)
+@@ -0,0 +1,10 @@
++<component name="libraryTable">
++  <library name="Gradle: com.google.guava:guava:33.2.1-jre" type="java-imported" external-system-id="GRADLE">
++    <properties groupId="com.google.guava" artifactId="guava" version="33.2.1-jre" baseVersion="33.2.1-jre" />
++    <CLASSES>
++      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.google.guava/guava/33.2.1-jre/818e780da2c66c63bbb6480fef1f3855eeafa3e4/guava-33.2.1-jre.jar!/" />
++    </CLASSES>
++    <JAVADOC />
++    <SOURCES />
++  </library>
++</component>
+\ No newline at end of file
+Index: .idea/libraries/Gradle__org_apiguardian_apiguardian_api_1_1_2.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/libraries/Gradle__org_apiguardian_apiguardian_api_1_1_2.xml b/.idea/libraries/Gradle__org_apiguardian_apiguardian_api_1_1_2.xml
+new file mode 100644
+--- /dev/null	(date 1734775845906)
++++ b/.idea/libraries/Gradle__org_apiguardian_apiguardian_api_1_1_2.xml	(date 1734775845906)
+@@ -0,0 +1,10 @@
++<component name="libraryTable">
++  <library name="Gradle: org.apiguardian:apiguardian-api:1.1.2" type="java-imported" external-system-id="GRADLE">
++    <properties groupId="org.apiguardian" artifactId="apiguardian-api" version="1.1.2" baseVersion="1.1.2" />
++    <CLASSES>
++      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.apiguardian/apiguardian-api/1.1.2/a231e0d844d2721b0fa1b238006d15c6ded6842a/apiguardian-api-1.1.2.jar!/" />
++    </CLASSES>
++    <JAVADOC />
++    <SOURCES />
++  </library>
++</component>
+\ No newline at end of file
+Index: .idea/libraries/Gradle__org_checkerframework_checker_qual_3_42_0.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/libraries/Gradle__org_checkerframework_checker_qual_3_42_0.xml b/.idea/libraries/Gradle__org_checkerframework_checker_qual_3_42_0.xml
+new file mode 100644
+--- /dev/null	(date 1734775845910)
++++ b/.idea/libraries/Gradle__org_checkerframework_checker_qual_3_42_0.xml	(date 1734775845910)
+@@ -0,0 +1,10 @@
++<component name="libraryTable">
++  <library name="Gradle: org.checkerframework:checker-qual:3.42.0" type="java-imported" external-system-id="GRADLE">
++    <properties groupId="org.checkerframework" artifactId="checker-qual" version="3.42.0" baseVersion="3.42.0" />
++    <CLASSES>
++      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.checkerframework/checker-qual/3.42.0/638ec33f363a94d41a4f03c3e7d3dcfba64e402d/checker-qual-3.42.0.jar!/" />
++    </CLASSES>
++    <JAVADOC />
++    <SOURCES />
++  </library>
++</component>
+\ No newline at end of file
+Index: .idea/libraries/Gradle__com_google_protobuf_protobuf_java_3_21_9.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/libraries/Gradle__com_google_protobuf_protobuf_java_3_21_9.xml b/.idea/libraries/Gradle__com_google_protobuf_protobuf_java_3_21_9.xml
+new file mode 100644
+--- /dev/null	(date 1734775845901)
++++ b/.idea/libraries/Gradle__com_google_protobuf_protobuf_java_3_21_9.xml	(date 1734775845901)
+@@ -0,0 +1,10 @@
++<component name="libraryTable">
++  <library name="Gradle: com.google.protobuf:protobuf-java:3.21.9" type="java-imported" external-system-id="GRADLE">
++    <properties groupId="com.google.protobuf" artifactId="protobuf-java" version="3.21.9" baseVersion="3.21.9" />
++    <CLASSES>
++      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.google.protobuf/protobuf-java/3.21.9/ed1240d9231044ce6ccf1978512f6e44416bb7e7/protobuf-java-3.21.9.jar!/" />
++    </CLASSES>
++    <JAVADOC />
++    <SOURCES />
++  </library>
++</component>
+\ No newline at end of file
+Index: .idea/libraries/Gradle__com_mysql_mysql_connector_j_8_0_33.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/libraries/Gradle__com_mysql_mysql_connector_j_8_0_33.xml b/.idea/libraries/Gradle__com_mysql_mysql_connector_j_8_0_33.xml
+new file mode 100644
+--- /dev/null	(date 1734775845903)
++++ b/.idea/libraries/Gradle__com_mysql_mysql_connector_j_8_0_33.xml	(date 1734775845903)
+@@ -0,0 +1,10 @@
++<component name="libraryTable">
++  <library name="Gradle: com.mysql:mysql-connector-j:8.0.33" type="java-imported" external-system-id="GRADLE">
++    <properties groupId="com.mysql" artifactId="mysql-connector-j" version="8.0.33" baseVersion="8.0.33" />
++    <CLASSES>
++      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.mysql/mysql-connector-j/8.0.33/9e64d997873abc4318620264703d3fdb6b02dd5a/mysql-connector-j-8.0.33.jar!/" />
++    </CLASSES>
++    <JAVADOC />
++    <SOURCES />
++  </library>
++</component>
+\ No newline at end of file
+Index: .idea/libraries/Gradle__org_junit_jupiter_junit_jupiter_engine_5_10_3.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/libraries/Gradle__org_junit_jupiter_junit_jupiter_engine_5_10_3.xml b/.idea/libraries/Gradle__org_junit_jupiter_junit_jupiter_engine_5_10_3.xml
+new file mode 100644
+--- /dev/null	(date 1734775845917)
++++ b/.idea/libraries/Gradle__org_junit_jupiter_junit_jupiter_engine_5_10_3.xml	(date 1734775845917)
+@@ -0,0 +1,10 @@
++<component name="libraryTable">
++  <library name="Gradle: org.junit.jupiter:junit-jupiter-engine:5.10.3" type="java-imported" external-system-id="GRADLE">
++    <properties groupId="org.junit.jupiter" artifactId="junit-jupiter-engine" version="5.10.3" baseVersion="5.10.3" />
++    <CLASSES>
++      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.junit.jupiter/junit-jupiter-engine/5.10.3/48c14e866bb1a87ca35d24ff068463bb202ada24/junit-jupiter-engine-5.10.3.jar!/" />
++    </CLASSES>
++    <JAVADOC />
++    <SOURCES />
++  </library>
++</component>
+\ No newline at end of file
+Index: .idea/libraries/Gradle__org_junit_jupiter_junit_jupiter_params_5_10_3.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/libraries/Gradle__org_junit_jupiter_junit_jupiter_params_5_10_3.xml b/.idea/libraries/Gradle__org_junit_jupiter_junit_jupiter_params_5_10_3.xml
+new file mode 100644
+--- /dev/null	(date 1734775845921)
++++ b/.idea/libraries/Gradle__org_junit_jupiter_junit_jupiter_params_5_10_3.xml	(date 1734775845921)
+@@ -0,0 +1,10 @@
++<component name="libraryTable">
++  <library name="Gradle: org.junit.jupiter:junit-jupiter-params:5.10.3" type="java-imported" external-system-id="GRADLE">
++    <properties groupId="org.junit.jupiter" artifactId="junit-jupiter-params" version="5.10.3" baseVersion="5.10.3" />
++    <CLASSES>
++      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.junit.jupiter/junit-jupiter-params/5.10.3/4852f4e4af9074d9214213b199751f99efeab8b9/junit-jupiter-params-5.10.3.jar!/" />
++    </CLASSES>
++    <JAVADOC />
++    <SOURCES />
++  </library>
++</component>
+\ No newline at end of file
+Index: .idea/libraries/Gradle__org_junit_jupiter_junit_jupiter_5_10_3.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/libraries/Gradle__org_junit_jupiter_junit_jupiter_5_10_3.xml b/.idea/libraries/Gradle__org_junit_jupiter_junit_jupiter_5_10_3.xml
+new file mode 100644
+--- /dev/null	(date 1734775845911)
++++ b/.idea/libraries/Gradle__org_junit_jupiter_junit_jupiter_5_10_3.xml	(date 1734775845911)
+@@ -0,0 +1,10 @@
++<component name="libraryTable">
++  <library name="Gradle: org.junit.jupiter:junit-jupiter:5.10.3" type="java-imported" external-system-id="GRADLE">
++    <properties groupId="org.junit.jupiter" artifactId="junit-jupiter" version="5.10.3" baseVersion="5.10.3" />
++    <CLASSES>
++      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.junit.jupiter/junit-jupiter/5.10.3/6686d8fbf251f9bf8ecba413cab57b9e00f9134d/junit-jupiter-5.10.3.jar!/" />
++    </CLASSES>
++    <JAVADOC />
++    <SOURCES />
++  </library>
++</component>
+\ No newline at end of file
+Index: .idea/libraries/Gradle__org_junit_jupiter_junit_jupiter_api_5_10_3.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/libraries/Gradle__org_junit_jupiter_junit_jupiter_api_5_10_3.xml b/.idea/libraries/Gradle__org_junit_jupiter_junit_jupiter_api_5_10_3.xml
+new file mode 100644
+--- /dev/null	(date 1734775845916)
++++ b/.idea/libraries/Gradle__org_junit_jupiter_junit_jupiter_api_5_10_3.xml	(date 1734775845916)
+@@ -0,0 +1,10 @@
++<component name="libraryTable">
++  <library name="Gradle: org.junit.jupiter:junit-jupiter-api:5.10.3" type="java-imported" external-system-id="GRADLE">
++    <properties groupId="org.junit.jupiter" artifactId="junit-jupiter-api" version="5.10.3" baseVersion="5.10.3" />
++    <CLASSES>
++      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.junit.jupiter/junit-jupiter-api/5.10.3/a22aa91d1d6c69b2020a9aeb6d095ea81132bfa5/junit-jupiter-api-5.10.3.jar!/" />
++    </CLASSES>
++    <JAVADOC />
++    <SOURCES />
++  </library>
++</component>
+\ No newline at end of file
+Index: .idea/libraries/Gradle__org_junit_platform_junit_platform_launcher_1_10_3.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/libraries/Gradle__org_junit_platform_junit_platform_launcher_1_10_3.xml b/.idea/libraries/Gradle__org_junit_platform_junit_platform_launcher_1_10_3.xml
+new file mode 100644
+--- /dev/null	(date 1734775845929)
++++ b/.idea/libraries/Gradle__org_junit_platform_junit_platform_launcher_1_10_3.xml	(date 1734775845929)
+@@ -0,0 +1,10 @@
++<component name="libraryTable">
++  <library name="Gradle: org.junit.platform:junit-platform-launcher:1.10.3" type="java-imported" external-system-id="GRADLE">
++    <properties groupId="org.junit.platform" artifactId="junit-platform-launcher" version="1.10.3" baseVersion="1.10.3" />
++    <CLASSES>
++      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.junit.platform/junit-platform-launcher/1.10.3/2e07e6389624f3e93fb2e87aec2fdc30cc84b069/junit-platform-launcher-1.10.3.jar!/" />
++    </CLASSES>
++    <JAVADOC />
++    <SOURCES />
++  </library>
++</component>
+\ No newline at end of file
+Index: .idea/libraries/Gradle__org_opentest4j_opentest4j_1_3_0.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/libraries/Gradle__org_opentest4j_opentest4j_1_3_0.xml b/.idea/libraries/Gradle__org_opentest4j_opentest4j_1_3_0.xml
+new file mode 100644
+--- /dev/null	(date 1734775845934)
++++ b/.idea/libraries/Gradle__org_opentest4j_opentest4j_1_3_0.xml	(date 1734775845934)
+@@ -0,0 +1,10 @@
++<component name="libraryTable">
++  <library name="Gradle: org.opentest4j:opentest4j:1.3.0" type="java-imported" external-system-id="GRADLE">
++    <properties groupId="org.opentest4j" artifactId="opentest4j" version="1.3.0" baseVersion="1.3.0" />
++    <CLASSES>
++      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.opentest4j/opentest4j/1.3.0/152ea56b3a72f655d4fd677fc0ef2596c3dd5e6e/opentest4j-1.3.0.jar!/" />
++    </CLASSES>
++    <JAVADOC />
++    <SOURCES />
++  </library>
++</component>
+\ No newline at end of file
+Index: .idea/libraries/Gradle__org_junit_platform_junit_platform_commons_1_10_3.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/libraries/Gradle__org_junit_platform_junit_platform_commons_1_10_3.xml b/.idea/libraries/Gradle__org_junit_platform_junit_platform_commons_1_10_3.xml
+new file mode 100644
+--- /dev/null	(date 1734775845924)
++++ b/.idea/libraries/Gradle__org_junit_platform_junit_platform_commons_1_10_3.xml	(date 1734775845924)
+@@ -0,0 +1,10 @@
++<component name="libraryTable">
++  <library name="Gradle: org.junit.platform:junit-platform-commons:1.10.3" type="java-imported" external-system-id="GRADLE">
++    <properties groupId="org.junit.platform" artifactId="junit-platform-commons" version="1.10.3" baseVersion="1.10.3" />
++    <CLASSES>
++      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.junit.platform/junit-platform-commons/1.10.3/a353d42a2f13343a7cb80c5228ae66ff64495481/junit-platform-commons-1.10.3.jar!/" />
++    </CLASSES>
++    <JAVADOC />
++    <SOURCES />
++  </library>
++</component>
+\ No newline at end of file
+Index: .idea/libraries/Gradle__org_junit_platform_junit_platform_engine_1_10_3.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/libraries/Gradle__org_junit_platform_junit_platform_engine_1_10_3.xml b/.idea/libraries/Gradle__org_junit_platform_junit_platform_engine_1_10_3.xml
+new file mode 100644
+--- /dev/null	(date 1734775845926)
++++ b/.idea/libraries/Gradle__org_junit_platform_junit_platform_engine_1_10_3.xml	(date 1734775845926)
+@@ -0,0 +1,10 @@
++<component name="libraryTable">
++  <library name="Gradle: org.junit.platform:junit-platform-engine:1.10.3" type="java-imported" external-system-id="GRADLE">
++    <properties groupId="org.junit.platform" artifactId="junit-platform-engine" version="1.10.3" baseVersion="1.10.3" />
++    <CLASSES>
++      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.junit.platform/junit-platform-engine/1.10.3/365a320c3cfd47f3346625e541e424e35dc75c42/junit-platform-engine-1.10.3.jar!/" />
++    </CLASSES>
++    <JAVADOC />
++    <SOURCES />
++  </library>
++</component>
+\ No newline at end of file
+Index: .idea/misc.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<project version=\"4\">\r\n  <component name=\"ExternalStorageConfigurationManager\" enabled=\"true\" />\r\n  <component name=\"ProjectRootManager\" version=\"2\" languageLevel=\"JDK_21\" default=\"true\" project-jdk-name=\"openjdk-21\" project-jdk-type=\"JavaSDK\">\r\n    <output url=\"file://$PROJECT_DIR$/out\" />\r\n  </component>\r\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/misc.xml b/.idea/misc.xml
+--- a/.idea/misc.xml	(revision adaf199ae7a76e4dc0d53288a784061fa247e7ea)
++++ b/.idea/misc.xml	(date 1734776122776)
+@@ -1,7 +1,6 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+ <project version="4">
+-  <component name="ExternalStorageConfigurationManager" enabled="true" />
+-  <component name="ProjectRootManager" version="2" languageLevel="JDK_21" default="true" project-jdk-name="openjdk-21" project-jdk-type="JavaSDK">
++  <component name="ProjectRootManager" version="2" languageLevel="JDK_21" default="true" project-jdk-name="21" project-jdk-type="JavaSDK">
+     <output url="file://$PROJECT_DIR$/out" />
+   </component>
+ </project>
+\ No newline at end of file

@@ -10,8 +10,6 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
 
 public class RegisterPage {
 
@@ -194,6 +192,9 @@ public class RegisterPage {
                     if (registrationSuccessful) {
                         JOptionPane.showMessageDialog(registerFrame, "Registration successful!", "Success", JOptionPane.INFORMATION_MESSAGE);
                         registerFrame.dispose();  // Close the registration window
+
+                        // Open the login page
+                        SwingUtilities.invokeLater(() -> LoginPage.main(new String[0]));
                     } else {
                         JOptionPane.showMessageDialog(registerFrame, "Registration failed. Please try again.", "Error", JOptionPane.ERROR_MESSAGE);
                     }
