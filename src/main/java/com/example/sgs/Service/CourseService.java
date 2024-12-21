@@ -1,29 +1,42 @@
 package com.example.sgs.Service;
 
+import com.example.sgs.Entities.Course;
+import com.example.sgs.Entities.Prerequisite;
 import com.example.sgs.Repository.CourseRepository;
-import com.example.sgs.model.Course;
 
+import java.util.List;
+import java.util.Optional;
 
 public class CourseService {
+
     private final CourseRepository courseRepository;
 
     public CourseService(CourseRepository courseRepository) {
         this.courseRepository = courseRepository;
     }
 
-    public Course findCourseById(String courseId) {
-        Course course = courseRepository.findCourseById(courseId);
-        if (course == null) {
-            throw new IllegalArgumentException("Course not found with ID: " + courseId);
-        }
-        return course;
+    // Fetch a course by ID
+    public Optional<Course> getCourseById(int courseId) {
+        return courseRepository.findById(courseId);
     }
 
-    public void addCourse(Course course) {
-        courseRepository.save(course);
+    // Fetch all courses
+    public List<Course> getAllCourses() {
+        return courseRepository.findAll();
     }
 
-    public void deleteCourse(String courseId) {
-        courseRepository.delete(courseId);
+    // Save a new course
+    public boolean addCourse(Course course) {
+        return courseRepository.save(course);
+    }
+
+    // Fetch prerequisites for a course
+    public List<Prerequisite> getPrerequisitesByCourseId(int courseId) {
+        return courseRepository.findPrerequisitesByCourseId(courseId);
+    }
+
+    // Search courses by name
+    public List<Course> searchCoursesByName(String courseName) {
+        return courseRepository.findByCourseName(courseName);
     }
 }
