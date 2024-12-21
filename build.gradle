@@ -1,6 +1,7 @@
 plugins {
     id 'java'
     id 'application'
+    id 'checkstyle'
 }
 
 repositories {
@@ -19,5 +20,24 @@ application {
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+// Checkstyle Configuration
+checkstyle {
+    toolVersion = '10.12.0' // Use the latest Checkstyle version
+    configFile = file('config/checkstyle/checkstyle.xml') // Checkstyle rules file
+}
+
+tasks.checkstyleMain {
+    reports {
+        html.required = true // Generate an HTML report
+        xml.required = false // Disable XML report if not needed
+    }
+}
+
+tasks.checkstyleTest {
+    reports {
+        html.required = true
+        xml.required = false
     }
 }
