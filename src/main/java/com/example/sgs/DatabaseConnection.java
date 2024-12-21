@@ -8,7 +8,7 @@ public class DatabaseConnection {
     // Database URL, username, and password
     private static final String URL = "jdbc:mysql://127.0.0.1:3306/sgs";
     private static final String USER = "root"; //
-    private static final String PASSWORD = "mertarda12"; //
+    private static final String PASSWORD = "root"; //
     private static Connection connection = null;
     public static Connection getConnection() {
         if (connection == null) {
