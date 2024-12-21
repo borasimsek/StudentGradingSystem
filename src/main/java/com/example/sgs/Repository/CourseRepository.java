@@ -259,16 +259,18 @@ public class CourseRepository {
     }
 
     public boolean delete(int courseId) {
-        String sql = "DELETE FROM courses WHERE id = ?";
-        try (PreparedStatement statement = connection.prepareStatement(sql)) {
-            statement.setInt(1, courseId);
-            int rowsAffected = statement.executeUpdate();
+        String sql = "DELETE FROM courses WHERE course_id = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, courseId);
+            int rowsAffected = stmt.executeUpdate();
+            System.out.println("Rows affected: " + rowsAffected); // Hata ayıklama için
             return rowsAffected > 0;
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
         }
     }
+
 
     public List<Course> findAllCourses() {
         List<Course> courses = new ArrayList<>();

@@ -4,6 +4,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
@@ -237,23 +239,57 @@ public class AdminDashboard extends JFrame {
             int year = Integer.parseInt(yearField.getText());
             String term = (String) termComboBox.getSelectedItem();
 
+            // Schedule bilgileri
+            String dayOfWeek = (String) dayComboBox.getSelectedItem();
+            String startTime = (String) startTimeComboBox.getSelectedItem();
+            String endTime = (String) endTimeComboBox.getSelectedItem();
+            String building = (String) buildingComboBox.getSelectedItem();
+            String room = (String) roomComboBox.getSelectedItem();
+
             // Instructor seçimini al
             User selectedInstructor = (User) instructorComboBox.getSelectedItem();
 
-            // Instructor seçili mi kontrol et
+            // Instructor kontrolü
             if (selectedInstructor == null) {
                 JOptionPane.showMessageDialog(null, "Please select an instructor.", "Error", JOptionPane.ERROR_MESSAGE);
-                return; // Instructor seçilmezse işlemi durdur
+                return;
             }
 
             try {
                 CourseRepository courseRepository = new CourseRepository(DatabaseConnection.getConnection());
 
+                // Ders çakışma kontrolü
+                String checkSql = "SELECT COUNT(*) FROM schedules s " +
+                        "JOIN courses c ON s.course_id = c.course_id " +
+                        "WHERE s.building = ? AND s.room = ? AND s.day_of_week = ? " +
+                        "AND ((s.start_time < ? AND s.end_time > ?) OR (s.start_time >= ? AND s.start_time < ?)) " +
+                        "AND c.year = ? AND c.term = ?";
+
+                try (PreparedStatement stmt = DatabaseConnection.getConnection().prepareStatement(checkSql)) {
+                    stmt.setString(1, building);
+                    stmt.setString(2, room);
+                    stmt.setString(3, dayOfWeek);
+                    stmt.setString(4, endTime);
+                    stmt.setString(5, startTime);
+                    stmt.setString(6, startTime);
+                    stmt.setString(7, endTime);
+                    stmt.setInt(8, year);
+                    stmt.setString(9, term);
+
+                    try (ResultSet rs = stmt.executeQuery()) {
+                        if (rs.next() && rs.getInt(1) > 0) {
+                            JOptionPane.showMessageDialog(null, "Error: A course already exists in this time slot and room.");
+                            return;
+                        }
+                    }
+                }
+
+                // Yeni ders oluştur ve veritabanına kaydet
                 Course newCourse = new Course(
                         Integer.parseInt(generatedId),
                         courseName,
                         courseCodePrefix + generatedId,
-                        selectedInstructor, // Seçilen instructor burada atanıyor
+                        selectedInstructor,
                         credits,
                         quota,
                         year,
@@ -262,6 +298,20 @@ public class AdminDashboard extends JFrame {
                 );
 
                 if (courseRepository.save(newCourse)) {
+                    // Schedules tablosuna ekleme işlemi
+                    String sql = "INSERT INTO schedules (user_id, course_id, day_of_week, start_time, end_time, room, building) " +
+                            "VALUES (?, ?, ?, ?, ?, ?, ?)";
+                    try (PreparedStatement stmt = DatabaseConnection.getConnection().prepareStatement(sql)) {
+                        stmt.setInt(1, selectedInstructor.getUserId());
+                        stmt.setInt(2, Integer.parseInt(generatedId));
+                        stmt.setString(3, dayOfWeek);
+                        stmt.setString(4, startTime);
+                        stmt.setString(5, endTime);
+                        stmt.setString(6, room);
+                        stmt.setString(7, building);
+                        stmt.executeUpdate();
+                    }
+
                     JOptionPane.showMessageDialog(null, "Course saved successfully!");
                     // Alanları temizleme
                     courseNameField.setText("");
@@ -272,12 +322,13 @@ public class AdminDashboard extends JFrame {
                     yearField.setText("");
                     facultyComboBox.setSelectedIndex(0);
                     termComboBox.setSelectedIndex(0);
-                    instructorComboBox.setSelectedIndex(0); // Instructor seçimini sıfırlayın
+                    instructorComboBox.setSelectedIndex(0);
                 } else {
                     JOptionPane.showMessageDialog(null, "Failed to save course.");
                 }
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(null, "Error saving course: " + ex.getMessage());
+                ex.printStackTrace();
             }
         });
 
@@ -315,6 +366,15 @@ public class AdminDashboard extends JFrame {
                     int selectedRow = table.getSelectedRow();
                     if (selectedRow != -1) {
                         int courseId = (int) tableData[selectedRow][0];
+
+                        // schedules tablosundan silme işlemi
+                        String deleteScheduleSql = "DELETE FROM schedules WHERE course_id = ?";
+                        try (PreparedStatement stmt = DatabaseConnection.getConnection().prepareStatement(deleteScheduleSql)) {
+                            stmt.setInt(1, courseId);
+                            stmt.executeUpdate();
+                        }
+
+                        // courses tablosundan silme işlemi
                         boolean isDeleted = courseRepository.delete(courseId);
                         if (isDeleted) {
                             JOptionPane.showMessageDialog(null, "Course deleted successfully!");
@@ -329,6 +389,8 @@ public class AdminDashboard extends JFrame {
                 JOptionPane.showMessageDialog(null, "Error deleting course: " + ex.getMessage());
             }
         });
+
+
 
 
         backButton.addActionListener(e -> switchCard(mainPanel, "Main Menu"));
