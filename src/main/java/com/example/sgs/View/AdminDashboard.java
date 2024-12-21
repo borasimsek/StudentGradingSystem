@@ -77,49 +77,137 @@ public class AdminDashboard extends JFrame {
     private static JPanel createManageCoursesPanel(JPanel mainPanel) {
         JPanel manageCoursesPanel = new JPanel(new BorderLayout());
         JLabel title = new JLabel("Manage Courses", SwingConstants.CENTER);
-        title.setFont(new Font("Arial", Font.BOLD, 16));
+        title.setFont(new Font("Arial", Font.BOLD, 18));
+        title.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
+        manageCoursesPanel.add(title, BorderLayout.NORTH);
 
-        JPanel courseForm = new JPanel(new GridLayout(10, 2, 10, 10));
+        JPanel formPanel = new JPanel(new GridBagLayout());
+        formPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(5, 5, 5, 5);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        // Giriş alanları
-        JTextField courseNameField = new JTextField();
+        // ===== Course Details Bölümü =====
+        formPanel.setBorder(BorderFactory.createTitledBorder("Course Details"));
+
+        JTextField courseNameField = new JTextField(20);
         JComboBox<String> facultyComboBox = new JComboBox<>(new String[]{"Engineering", "Law", "Business", "Language", "Aviation", "Others"});
-        JTextField courseCodeField = new JTextField(); // Kullanıcıdan alınan kısaltma
-        JLabel generatedIdLabel = new JLabel("Generated ID: N/A"); // Otomatik ID
-        JTextField creditField = new JTextField();
-        JTextField quotaField = new JTextField();
-        JTextField yearField = new JTextField();
+        JTextField courseCodeField = new JTextField(10);
+        JLabel generatedIdLabel = new JLabel("Generated ID: N/A");
+        JTextField creditField = new JTextField(10);
+        JTextField quotaField = new JTextField(10);
+        JTextField yearField = new JTextField(10);
         JComboBox<String> termComboBox = new JComboBox<>(new String[]{"Fall", "Spring", "Summer"});
+
+        // Course Details Alanlarını Yerleştirme
+        gbc.gridx = 0; gbc.gridy = 0;
+        formPanel.add(new JLabel("Course Name:"), gbc);
+        gbc.gridx = 1;
+        formPanel.add(courseNameField, gbc);
+
+        gbc.gridx = 0; gbc.gridy++;
+        formPanel.add(new JLabel("Faculty:"), gbc);
+        gbc.gridx = 1;
+        formPanel.add(facultyComboBox, gbc);
+
+        gbc.gridx = 0; gbc.gridy++;
+        formPanel.add(new JLabel("Course Code:"), gbc);
+        gbc.gridx = 1;
+        formPanel.add(courseCodeField, gbc);
+
+        gbc.gridx = 0; gbc.gridy++;
+        formPanel.add(new JLabel("Generated ID:"), gbc);
+        gbc.gridx = 1;
+        formPanel.add(generatedIdLabel, gbc);
+
+        gbc.gridx = 0; gbc.gridy++;
+        formPanel.add(new JLabel("Credits:"), gbc);
+        gbc.gridx = 1;
+        formPanel.add(creditField, gbc);
+
+        gbc.gridx = 0; gbc.gridy++;
+        formPanel.add(new JLabel("Quota:"), gbc);
+        gbc.gridx = 1;
+        formPanel.add(quotaField, gbc);
+
+        gbc.gridx = 0; gbc.gridy++;
+        formPanel.add(new JLabel("Year:"), gbc);
+        gbc.gridx = 1;
+        formPanel.add(yearField, gbc);
+
+        gbc.gridx = 0; gbc.gridy++;
+        formPanel.add(new JLabel("Term:"), gbc);
+        gbc.gridx = 1;
+        formPanel.add(termComboBox, gbc);
+
+        // ===== Schedule Bölümü =====
+        JPanel schedulePanel = new JPanel(new GridBagLayout());
+        schedulePanel.setBorder(BorderFactory.createTitledBorder("Schedule"));
+
         JComboBox<String> dayComboBox = new JComboBox<>(new String[]{"Monday", "Tuesday", "Wednesday", "Thursday", "Friday"});
         JComboBox<String> startTimeComboBox = new JComboBox<>(new String[]{"8:40", "9:40", "10:40", "11:40", "12:40", "13:40", "14:40", "15:40", "16:40", "17:40"});
-        JComboBox<String> endTimeComboBox = new JComboBox<>(new String[]{"9:30", "10:30", "11:30", "12:30", "13:30", "14:30", "15:30", "16:30", "17:30", "18:30", "19:30"});
+        JComboBox<String> endTimeComboBox = new JComboBox<>(new String[]{"9:30", "10:30", "11:30", "12:30", "13:30", "14:30", "15:30", "16:30", "17:30", "19:30"});
         JComboBox<String> buildingComboBox = new JComboBox<>(new String[]{"AB1", "AB2", "AB3", "AB4", "AB5"});
-        JComboBox<String> roomComboBox = new JComboBox<>(new String[]{"100", "101", "102", "103", "104", "105"}); // Dinamik yapılabilir.
-        JComboBox<User> instructorComboBox = new JComboBox<>(); // Veri tabanından yükleme yapılacak.
+        JComboBox<String> roomComboBox = new JComboBox<>();
 
-        // Course Repository için bağlantı
-        CourseRepository courseRepository = new CourseRepository(DatabaseConnection.getConnection());
+        // Schedule Alanlarını Yerleştirme
+        gbc.gridx = 0; gbc.gridy = 0;
+        schedulePanel.add(new JLabel("Day:"), gbc);
+        gbc.gridx = 1;
+        schedulePanel.add(dayComboBox, gbc);
 
-        // Instructorları yükleme
+        gbc.gridx = 0; gbc.gridy++;
+        schedulePanel.add(new JLabel("Start Time:"), gbc);
+        gbc.gridx = 1;
+        schedulePanel.add(startTimeComboBox, gbc);
+
+        gbc.gridx = 0; gbc.gridy++;
+        schedulePanel.add(new JLabel("End Time:"), gbc);
+        gbc.gridx = 1;
+        schedulePanel.add(endTimeComboBox, gbc);
+
+        gbc.gridx = 0; gbc.gridy++;
+        schedulePanel.add(new JLabel("Building:"), gbc);
+        gbc.gridx = 1;
+        schedulePanel.add(buildingComboBox, gbc);
+
+        gbc.gridx = 0; gbc.gridy++;
+        schedulePanel.add(new JLabel("Room:"), gbc);
+        gbc.gridx = 1;
+        schedulePanel.add(roomComboBox, gbc);
+
+        // ===== Instructor Bölümü =====
+        JPanel instructorPanel = new JPanel(new GridBagLayout());
+        instructorPanel.setBorder(BorderFactory.createTitledBorder("Instructor"));
+
+        JComboBox<User> instructorComboBox = new JComboBox<>();
         try {
             UserRepository userRepository = new UserRepository(DatabaseConnection.getConnection());
-            List<User> instructors = userRepository.findAllInstructors(); // Tüm instructorları getir.
+            List<User> instructors = userRepository.findAllInstructors();
             for (User instructor : instructors) {
-                instructorComboBox.addItem(instructor); // ComboBox’a ekle.
+                instructorComboBox.addItem(instructor);
             }
         } catch (Exception e) {
             JOptionPane.showMessageDialog(null, "Error loading instructors: " + e.getMessage());
         }
 
-        // Save Course Button
-        JButton saveCourseButton = new JButton("Save Course");
-        saveCourseButton.addActionListener(e -> {
+        gbc.gridx = 0; gbc.gridy = 0;
+        instructorPanel.add(new JLabel("Assigned Instructor:"), gbc);
+        gbc.gridx = 1;
+        instructorPanel.add(instructorComboBox, gbc);
+
+        // ===== Buton Paneli =====
+        JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        JButton saveButton = new JButton("Save");
+        JButton backButton = new JButton("Back");
+
+        buttonsPanel.add(saveButton);
+        buttonsPanel.add(backButton);
+
+        saveButton.addActionListener(e -> {
             String courseName = courseNameField.getText();
             String faculty = (String) facultyComboBox.getSelectedItem();
             String courseCode = courseCodeField.getText().toUpperCase();
-            int credits = Integer.parseInt(creditField.getText());
-            int quota = Integer.parseInt(quotaField.getText());
-            int year = Integer.parseInt(yearField.getText());
             String term = (String) termComboBox.getSelectedItem();
             String day = (String) dayComboBox.getSelectedItem();
             String startTime = (String) startTimeComboBox.getSelectedItem();
@@ -128,63 +216,19 @@ public class AdminDashboard extends JFrame {
             String room = (String) roomComboBox.getSelectedItem();
             User instructor = (User) instructorComboBox.getSelectedItem();
 
-            // Fakülteye göre ID oluşturma
-            int generatedId = courseRepository.getNextCourseId(faculty); // Fakülteye göre ID al.
-            generatedIdLabel.setText("Generated ID: " + generatedId);
-
-            Course newCourse = new Course(
-                    generatedId, courseName, courseCode, instructor, credits, quota, year,
-                    Course.Term.valueOf(term.toUpperCase()), faculty
-            );
-
-            // Veritabanına kaydet
-            boolean success = courseRepository.save(newCourse);
-            if (success) {
-                JOptionPane.showMessageDialog(null, "Course added successfully!");
-            } else {
-                JOptionPane.showMessageDialog(null, "Failed to add course.");
-            }
+            // Kursu veritabanına kaydetme işlemi
+            // ...
         });
 
-        courseForm.add(new JLabel("Course Name:"));
-        courseForm.add(courseNameField);
-        courseForm.add(new JLabel("Faculty:"));
-        courseForm.add(facultyComboBox);
-        courseForm.add(new JLabel("Course Code:"));
-        courseForm.add(courseCodeField);
-        courseForm.add(new JLabel("Generated ID:"));
-        courseForm.add(generatedIdLabel);
-        courseForm.add(new JLabel("Credits:"));
-        courseForm.add(creditField);
-        courseForm.add(new JLabel("Quota:"));
-        courseForm.add(quotaField);
-        courseForm.add(new JLabel("Year:"));
-        courseForm.add(yearField);
-        courseForm.add(new JLabel("Term:"));
-        courseForm.add(termComboBox);
-        courseForm.add(new JLabel("Day:"));
-        courseForm.add(dayComboBox);
-        courseForm.add(new JLabel("Start Time:"));
-        courseForm.add(startTimeComboBox);
-        courseForm.add(new JLabel("End Time:"));
-        courseForm.add(endTimeComboBox);
-        courseForm.add(new JLabel("Building:"));
-        courseForm.add(buildingComboBox);
-        courseForm.add(new JLabel("Room:"));
-        courseForm.add(roomComboBox);
-        courseForm.add(new JLabel("Instructor:"));
-        courseForm.add(instructorComboBox);
-
-        JPanel buttonsPanel = new JPanel();
-        buttonsPanel.add(saveCourseButton);
-        buttonsPanel.add(new JButton("Back to Main Menu"));
-
-        manageCoursesPanel.add(title, BorderLayout.NORTH);
-        manageCoursesPanel.add(courseForm, BorderLayout.CENTER);
+        // Ana Paneli Düzenleme
+        manageCoursesPanel.add(formPanel, BorderLayout.WEST);
+        manageCoursesPanel.add(schedulePanel, BorderLayout.CENTER);
+        manageCoursesPanel.add(instructorPanel, BorderLayout.EAST);
         manageCoursesPanel.add(buttonsPanel, BorderLayout.SOUTH);
 
         return manageCoursesPanel;
     }
+
 
 
     private static JPanel createManageUsersPanel(JPanel mainPanel) {
