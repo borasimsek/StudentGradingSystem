@@ -6,6 +6,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 public class UserRepository {
@@ -22,6 +24,7 @@ public class UserRepository {
     /**
      * Finds a user by their email address
      */
+
     public Optional<User> findByEmail(String email) {
         String query = "SELECT * FROM users WHERE email = ?";
         try (PreparedStatement stmt = connection.prepareStatement(query)) {
@@ -90,4 +93,42 @@ public class UserRepository {
         }
         return false;
     }
+
+    public List<User> findStudentsByInstructorAndTerm(int instructorId, int year, String term) {
+        List<User> students = new ArrayList<>();
+        String query = """
+        SELECT u.user_id, u.email, u.first_name, u.last_name, u.user_type
+        FROM users u
+        INNER JOIN enrollments e ON u.user_id = e.student_id
+        INNER JOIN courses c ON e.course_id = c.course_id
+        WHERE c.instructor_id = ? AND c.year = ? AND c.term = ?
+    """;
+
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+            stmt.setInt(1, instructorId); // Öğretmen ID'si
+            stmt.setInt(2, year);         // Dönem yılı
+            stmt.setString(3, term);      // Dönem bilgisi (örneğin "Fall", "Spring")
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    User student = new User(
+                            rs.getInt("user_id"),            // Kullanıcı ID'si
+                            rs.getString("email"),          // Email
+                            null,                           // Şifreyi getirmiyoruz
+                            User.UserType.valueOf(rs.getString("user_type").toUpperCase()), // UserType Enum
+                            rs.getString("first_name"),     // Ad
+                            rs.getString("last_name")       // Soyad
+                    );
+                    students.add(student);
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error finding students by instructor and term: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        return students;
+    }
+
+
 }
