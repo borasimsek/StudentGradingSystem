@@ -17,14 +17,14 @@ import com.example.sgs.DatabaseConnection;
 import static javax.swing.JOptionPane.YES_OPTION;
 
 public class AdminDashboard extends JFrame {
-    private static int courseCodeNumber = 100; // Ders kodu başlangıç numarası
-    private static final Set<String> usedCourseCodes = new HashSet<>(); // Kullanılmış ders kodları
-    private static final Map<String, String> savedCourses = new LinkedHashMap<>(); // Kaydedilen dersler
-
-    private static int adminNumber = 1; // Admin numarası
-    private static int instructorNumber = 1; // Eğitmen numarası
-    private static int studentNumber = 1; // Öğrenci numarası
-    private static final List<String> savedUsers = new ArrayList<>(); // Kaydedilen kullanıcılar
+    private static final Map<String, Integer> facultyCourseCounter = new HashMap<>() {{
+        put("Engineering", 100);
+        put("Law", 200);
+        put("Business", 300);
+        put("Language", 400);
+        put("Aviation", 500);
+        put("Others", 600);
+    }};
 
     public void show() {
         JFrame frame = new JFrame("Admin Dashboard");
@@ -92,7 +92,7 @@ public class AdminDashboard extends JFrame {
 
         JTextField courseNameField = new JTextField(20);
         JComboBox<String> facultyComboBox = new JComboBox<>(new String[]{"Engineering", "Law", "Business", "Language", "Aviation", "Others"});
-        JTextField courseCodeField = new JTextField(10);
+        JTextField courseCodePrefixField = new JTextField(5); // Kullanıcıdan alınan kısaltma
         JLabel generatedIdLabel = new JLabel("Generated ID: N/A");
         JTextField creditField = new JTextField(10);
         JTextField quotaField = new JTextField(10);
@@ -111,9 +111,9 @@ public class AdminDashboard extends JFrame {
         formPanel.add(facultyComboBox, gbc);
 
         gbc.gridx = 0; gbc.gridy++;
-        formPanel.add(new JLabel("Course Code:"), gbc);
+        formPanel.add(new JLabel("Course Prefix:"), gbc);
         gbc.gridx = 1;
-        formPanel.add(courseCodeField, gbc);
+        formPanel.add(courseCodePrefixField, gbc);
 
         gbc.gridx = 0; gbc.gridy++;
         formPanel.add(new JLabel("Generated ID:"), gbc);
@@ -140,6 +140,26 @@ public class AdminDashboard extends JFrame {
         gbc.gridx = 1;
         formPanel.add(termComboBox, gbc);
 
+        // ===== Instructor Bölümü =====
+        JPanel instructorPanel = new JPanel(new GridBagLayout());
+        instructorPanel.setBorder(BorderFactory.createTitledBorder("Instructor"));
+
+        JComboBox<User> instructorComboBox = new JComboBox<>();
+        try {
+            UserRepository userRepository = new UserRepository(DatabaseConnection.getConnection());
+            List<User> instructors = userRepository.findAllInstructors();
+            for (User instructor : instructors) {
+                instructorComboBox.addItem(instructor);
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, "Error loading instructors: " + e.getMessage());
+        }
+
+        gbc.gridx = 0; gbc.gridy = 0;
+        instructorPanel.add(new JLabel("Assigned Instructor:"), gbc);
+        gbc.gridx = 1;
+        instructorPanel.add(instructorComboBox, gbc);
+
         // ===== Schedule Bölümü =====
         JPanel schedulePanel = new JPanel(new GridBagLayout());
         schedulePanel.setBorder(BorderFactory.createTitledBorder("Schedule"));
@@ -149,6 +169,15 @@ public class AdminDashboard extends JFrame {
         JComboBox<String> endTimeComboBox = new JComboBox<>(new String[]{"9:30", "10:30", "11:30", "12:30", "13:30", "14:30", "15:30", "16:30", "17:30", "19:30"});
         JComboBox<String> buildingComboBox = new JComboBox<>(new String[]{"AB1", "AB2", "AB3", "AB4", "AB5"});
         JComboBox<String> roomComboBox = new JComboBox<>();
+
+        // Room Seçeneklerini Dinamik Güncelleme
+        buildingComboBox.addActionListener(e -> {
+            roomComboBox.removeAllItems();
+            for (int i = 100; i <= 140; i++) roomComboBox.addItem(String.valueOf(i));
+            for (int i = 200; i <= 240; i++) roomComboBox.addItem(String.valueOf(i));
+            for (int i = 300; i <= 340; i++) roomComboBox.addItem(String.valueOf(i));
+            for (int i = 400; i <= 440; i++) roomComboBox.addItem(String.valueOf(i));
+        });
 
         // Schedule Alanlarını Yerleştirme
         gbc.gridx = 0; gbc.gridy = 0;
@@ -176,25 +205,17 @@ public class AdminDashboard extends JFrame {
         gbc.gridx = 1;
         schedulePanel.add(roomComboBox, gbc);
 
-        // ===== Instructor Bölümü =====
-        JPanel instructorPanel = new JPanel(new GridBagLayout());
-        instructorPanel.setBorder(BorderFactory.createTitledBorder("Instructor"));
-
-        JComboBox<User> instructorComboBox = new JComboBox<>();
-        try {
-            UserRepository userRepository = new UserRepository(DatabaseConnection.getConnection());
-            List<User> instructors = userRepository.findAllInstructors();
-            for (User instructor : instructors) {
-                instructorComboBox.addItem(instructor);
+        // ===== Course Code ID Oluşturma =====
+        facultyComboBox.addActionListener(e -> {
+            String faculty = (String) facultyComboBox.getSelectedItem();
+            try {
+                CourseRepository courseRepository = new CourseRepository(DatabaseConnection.getConnection());
+                int generatedId = courseRepository.getNextCourseId(faculty); // Fakülteye göre ID al.
+                generatedIdLabel.setText("Generated ID: " + courseCodePrefixField.getText().toUpperCase() + generatedId);
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(null, "Error generating course ID: " + ex.getMessage());
             }
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "Error loading instructors: " + e.getMessage());
-        }
-
-        gbc.gridx = 0; gbc.gridy = 0;
-        instructorPanel.add(new JLabel("Assigned Instructor:"), gbc);
-        gbc.gridx = 1;
-        instructorPanel.add(instructorComboBox, gbc);
+        });
 
         // ===== Buton Paneli =====
         JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
@@ -207,7 +228,11 @@ public class AdminDashboard extends JFrame {
         saveButton.addActionListener(e -> {
             String courseName = courseNameField.getText();
             String faculty = (String) facultyComboBox.getSelectedItem();
-            String courseCode = courseCodeField.getText().toUpperCase();
+            String courseCodePrefix = courseCodePrefixField.getText().toUpperCase();
+            String generatedId = generatedIdLabel.getText().replace("Generated ID: ", "");
+            int credits = Integer.parseInt(creditField.getText());
+            int quota = Integer.parseInt(quotaField.getText());
+            int year = Integer.parseInt(yearField.getText());
             String term = (String) termComboBox.getSelectedItem();
             String day = (String) dayComboBox.getSelectedItem();
             String startTime = (String) startTimeComboBox.getSelectedItem();
@@ -216,8 +241,17 @@ public class AdminDashboard extends JFrame {
             String room = (String) roomComboBox.getSelectedItem();
             User instructor = (User) instructorComboBox.getSelectedItem();
 
-            // Kursu veritabanına kaydetme işlemi
-            // ...
+            // Veritabanına kaydetme işlemi
+            CourseRepository courseRepository = new CourseRepository(DatabaseConnection.getConnection());
+            Course newCourse = new Course(
+                    Integer.parseInt(generatedId), courseName, courseCodePrefix + generatedId, instructor, credits, quota, year,
+                    Course.Term.valueOf(term.toUpperCase()), faculty
+            );
+            if (courseRepository.save(newCourse)) {
+                JOptionPane.showMessageDialog(null, "Course saved successfully!");
+            } else {
+                JOptionPane.showMessageDialog(null, "Failed to save course.");
+            }
         });
 
         // Ana Paneli Düzenleme
@@ -228,6 +262,7 @@ public class AdminDashboard extends JFrame {
 
         return manageCoursesPanel;
     }
+
 
 
 
