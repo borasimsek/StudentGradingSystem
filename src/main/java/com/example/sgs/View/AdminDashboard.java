@@ -173,7 +173,7 @@ public class AdminDashboard extends JFrame {
                     // Son eklenen user_id'yi al
                     int userId = userRepository.getLastInsertedUserId();
                     if (userId != -1) {
-                        userNumberLabel.setText("ID: " + userId); // User Number alanında göster
+                        userNumberLabel.setText("ID: " + userId); // Doğru ID'yi göster
                         JOptionPane.showMessageDialog(null, "User Added Successfully!\nGenerated Password: " + generatedPassword + "\nUser ID: " + userId);
                     } else {
                         JOptionPane.showMessageDialog(null, "User added but ID could not be retrieved.", "Warning", JOptionPane.WARNING_MESSAGE);
@@ -192,6 +192,7 @@ public class AdminDashboard extends JFrame {
             emailLabel.setText("Email:");
             userNumberLabel.setText("User Number:");
         });
+
 
 
         // Kullanıcı silme işlemi
