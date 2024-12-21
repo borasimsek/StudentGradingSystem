@@ -15,7 +15,7 @@ public class AuthenticationService {
 
     public boolean register(String email, String password, User.UserType userType, String firstName, String lastName) {
         // Check if email already exists
-        if (userRepository.findByEmail(email) != null) {
+        if (userRepository.findByEmail(email).isPresent()) {  // Using isPresent() to check if the Optional contains a value
             System.out.println("Error: Email already exists.");
             return false;
         }
