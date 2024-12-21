@@ -29,7 +29,7 @@ public class UserRepository {
 
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
-                    String userTypeString = rs.getString("user_type").toUpperCase();
+                    String userTypeString = rs.getString("user_type").replace("i","ı").toUpperCase();
 
                     // Enum güvenli dönüşümü
                     User.UserType userType;
