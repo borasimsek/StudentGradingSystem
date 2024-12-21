@@ -4,6 +4,7 @@ import com.example.sgs.Entities.User;
 import com.example.sgs.Repository.UserRepository;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Optional;
 
 public class AuthenticationService {
 
@@ -45,5 +46,27 @@ public class AuthenticationService {
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException("Error hashing password", e);
         }
+    }
+
+    public User login(String email, String password) {
+        // Find user by email
+        Optional<User> userOptional = userRepository.findByEmail(email);
+
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+
+            // Verify the password
+            if (verifyPassword(password, user.getPasswordHash())) {
+                return user; // Authentication successful
+            }
+        }
+
+        return null; // Authentication failed
+    }
+
+    // Example password verification logic
+    private boolean verifyPassword(String plainPassword, String hashedPassword) {
+        // Replace this with your actual password hashing verification logic
+        return hashPassword(plainPassword).equals(hashedPassword);
     }
 }

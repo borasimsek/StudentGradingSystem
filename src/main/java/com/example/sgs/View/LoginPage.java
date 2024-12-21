@@ -1,6 +1,9 @@
 package com.example.sgs.View;
 
 import com.example.sgs.DatabaseConnection;
+import com.example.sgs.Entities.User;
+import com.example.sgs.Repository.UserRepository;
+import com.example.sgs.Service.AuthenticationService;
 
 import javax.swing.*;
 import java.awt.*;
@@ -13,7 +16,8 @@ public class LoginPage {
         // Attempt to establish a connection to the database
         try {
             Connection connection = DatabaseConnection.getConnection(); // Connect to the database
-
+            UserRepository userRepository = new UserRepository(connection);
+            AuthenticationService authenticationService = new AuthenticationService(userRepository);
             if (connection != null) {
                 System.out.println("Database connected successfully.");
             } else {
@@ -98,7 +102,36 @@ public class LoginPage {
             formGbc.gridwidth = 2;
             formGbc.anchor = GridBagConstraints.CENTER;
             formBackgroundPanel.add(loginButton, formGbc);
+            // Login Button ActionListener
+            loginButton.addActionListener(e -> {
+                String email = emailField.getText();
+                String password = new String(passwordField.getPassword());
 
+                // Authenticate user
+                User user = authenticationService.login(email, password);
+
+                if (user != null) {
+                    JOptionPane.showMessageDialog(frame, "Login successful. Welcome, " + user.getFirstName() + "!", "Login Success", JOptionPane.INFORMATION_MESSAGE);
+
+                    // Redirect based on user type
+                    switch (user.getUserType()) {
+                        case STUDENT:
+                            new StudentDashboard().setVisible(true); // Replace with the actual class for StudentPage
+                            break;
+                        case INSTRUCTOR:
+                            new InstructorDashboard().setVisible(true); // Replace with the actual class for InstructorPage
+                            break;
+                        case ADMIN:
+                            new AdminDashboard().setVisible(true); // Replace with the actual class for AdminPage
+                            break;
+                        default:
+                            JOptionPane.showMessageDialog(frame, "Unknown user type.", "Error", JOptionPane.ERROR_MESSAGE);
+                    }
+                    frame.dispose(); // Close login page
+                } else {
+                    JOptionPane.showMessageDialog(frame, "Invalid email or password. Please try again.", "Login Failed", JOptionPane.ERROR_MESSAGE);
+                }
+            });
             // Register Button (New Button)
             JButton registerButton = new JButton("Register");
             registerButton.setFont(new Font("Arial", Font.BOLD, 18));

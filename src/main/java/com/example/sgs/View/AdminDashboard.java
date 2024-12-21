@@ -5,7 +5,7 @@ import java.awt.*;
 import java.util.*;
 import java.util.List;
 
-public class AdminDashboard {
+public class AdminDashboard extends JFrame {
     private static int courseCodeNumber = 100; // Ders kodu başlangıç numarası
     private static final Set<String> usedCourseCodes = new HashSet<>(); // Kullanılmış ders kodları
     private static final Map<String, String> savedCourses = new LinkedHashMap<>(); // Kaydedilen dersler
@@ -15,7 +15,7 @@ public class AdminDashboard {
     private static int studentNumber = 1; // Öğrenci numarası
     private static final List<String> savedUsers = new ArrayList<>(); // Kaydedilen kullanıcılar
 
-    public static void show() {
+    public void show() {
         JFrame frame = new JFrame("Admin Dashboard");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setExtendedState(JFrame.MAXIMIZED_BOTH);

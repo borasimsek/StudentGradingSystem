@@ -3,8 +3,8 @@ package com.example.sgs.View;
 import javax.swing.*;
 import java.awt.*;
 
-public class StudentDashboard {
-    public static void show() {
+public class StudentDashboard extends JFrame {
+    public void show() {
         // Create the main frame
         JFrame frame = new JFrame("Student Dashboard");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
