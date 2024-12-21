@@ -4,8 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="dfc62256-8cb8-4568-abab-3c5ffb2d9a35" name="Changes" comment="">
+    <list default="true" id="dfc62256-8cb8-4568-abab-3c5ffb2d9a35" name="Changes" comment="Manage Users updated">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/sgs/Repository/UserRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/sgs/Repository/UserRepository.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/example/sgs/View/AdminDashboard.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/sgs/View/AdminDashboard.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -188,9 +189,22 @@
       <updated>1734775857016</updated>
       <workItem from="1734775857016" duration="3426000" />
     </task>
+    <task id="LOCAL-00001" summary="Manage Users updated">
+      <option name="closed" value="true" />
+      <created>1734787937493</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1734787937493</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Manage Users updated" />
+    <option name="LAST_COMMIT_MESSAGE" value="Manage Users updated" />
   </component>
 </project>

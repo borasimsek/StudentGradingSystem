@@ -129,6 +129,43 @@ public class UserRepository {
 
         return students;
     }
+    public List<User> findAll() {
+        List<User> users = new ArrayList<>();
+        String query = "SELECT user_id, email, first_name, last_name, user_type FROM users";
 
+        try (PreparedStatement stmt = connection.prepareStatement(query);
+             ResultSet rs = stmt.executeQuery()) {
+
+            while (rs.next()) {
+                User user = new User(
+                        rs.getInt("user_id"),                      // Kullanıcı ID
+                        rs.getString("email"),                    // Email
+                        null,                                      // Şifre, burada alınmıyor
+                        User.UserType.valueOf(rs.getString("user_type").toUpperCase()), // UserType Enum
+                        rs.getString("first_name"),               // Ad
+                        rs.getString("last_name")                 // Soyad
+                );
+                users.add(user);
+            }
+        } catch (SQLException e) {
+            System.err.println("Error fetching users: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return users;
+    }
+
+    public boolean delete(int userId) {
+        String query = "DELETE FROM users WHERE user_id = ?";
+
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+            stmt.setInt(1, userId);
+            int rowsAffected = stmt.executeUpdate();
+            return rowsAffected > 0; // Eğer etkilenen satır varsa silme başarılıdır
+        } catch (SQLException e) {
+            System.err.println("Error deleting user: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+    }
 
 }

@@ -140,6 +140,7 @@ public class AdminDashboard extends JFrame {
         JLabel userNumberLabel = new JLabel("User Number:");
 
         JButton addUserButton = new JButton("Add User");
+        JButton deleteUserButton = new JButton("Delete User");
         JButton backButton = new JButton("Back to Main Menu");
 
         // Kullanıcı adı ve soyadı değişiminde dinamik e-posta güncelleme
@@ -158,7 +159,6 @@ public class AdminDashboard extends JFrame {
                 return;
             }
 
-            // Şifreyi isim + soyisim + 5 rastgele rakam ile oluştur
             String generatedPassword = generatePassword(userName, userSurname);
 
             try {
@@ -183,6 +183,42 @@ public class AdminDashboard extends JFrame {
             userSurnameField.setText("");
         });
 
+        // Kullanıcı silme işlemi
+        deleteUserButton.addActionListener(e -> {
+            try {
+                UserRepository userRepository = new UserRepository(DatabaseConnection.getConnection());
+                List<User> users = userRepository.findAll(); // Tüm kullanıcıları getir
+
+                JFrame deleteFrame = new JFrame("Delete User");
+                deleteFrame.setSize(400, 300);
+                deleteFrame.setLayout(new BorderLayout());
+
+                JList<User> userList = new JList<>(users.toArray(new User[0]));
+                JScrollPane scrollPane = new JScrollPane(userList);
+
+                JButton confirmDeleteButton = new JButton("Delete Selected User");
+                confirmDeleteButton.addActionListener(event -> {
+                    User selectedUser = userList.getSelectedValue();
+                    if (selectedUser != null) {
+                        boolean isDeleted = userRepository.delete(selectedUser.getUserId());
+                        if (isDeleted) {
+                            JOptionPane.showMessageDialog(deleteFrame, "User Deleted Successfully!");
+                            deleteFrame.dispose();
+                        } else {
+                            JOptionPane.showMessageDialog(deleteFrame, "Failed to delete user.", "Error", JOptionPane.ERROR_MESSAGE);
+                        }
+                    }
+                });
+
+                deleteFrame.add(scrollPane, BorderLayout.CENTER);
+                deleteFrame.add(confirmDeleteButton, BorderLayout.SOUTH);
+                deleteFrame.setVisible(true);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                JOptionPane.showMessageDialog(null, "An error occurred while fetching users.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+
         backButton.addActionListener(e -> switchCard(mainPanel, "Main Menu"));
 
         userForm.add(new JLabel("First Name:"));
@@ -198,6 +234,7 @@ public class AdminDashboard extends JFrame {
 
         JPanel buttonsPanel = new JPanel();
         buttonsPanel.add(addUserButton);
+        buttonsPanel.add(deleteUserButton);
         buttonsPanel.add(backButton);
 
         manageUsersPanel.add(title, BorderLayout.NORTH);
