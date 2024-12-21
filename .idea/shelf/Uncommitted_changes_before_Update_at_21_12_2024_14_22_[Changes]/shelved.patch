@@ -1,0 +1,25 @@
+Index: .idea/modules.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<project version=\"4\">\r\n  <component name=\"ProjectModuleManager\">\r\n    <modules>\r\n      <module fileurl=\"file://$PROJECT_DIR$/.idea/sgs.iml\" filepath=\"$PROJECT_DIR$/.idea/sgs.iml\" />\r\n    </modules>\r\n  </component>\r\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/modules.xml b/.idea/modules.xml
+--- a/.idea/modules.xml	(revision cb2c92dd2458afd0f4ac30f0609f07ac68d39807)
++++ b/.idea/modules.xml	(date 1734780097570)
+@@ -2,7 +2,12 @@
+ <project version="4">
+   <component name="ProjectModuleManager">
+     <modules>
+-      <module fileurl="file://$PROJECT_DIR$/.idea/sgs.iml" filepath="$PROJECT_DIR$/.idea/sgs.iml" />
++      <module fileurl="file://$PROJECT_DIR$/.idea/modules/StudentGradingSystem.iml" filepath="$PROJECT_DIR$/.idea/modules/StudentGradingSystem.iml" />
++      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/StudentGradingSystem.app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/StudentGradingSystem.app.iml" />
++      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/StudentGradingSystem.app.main.iml" filepath="$PROJECT_DIR$/.idea/modules/app/StudentGradingSystem.app.main.iml" />
++      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/StudentGradingSystem.app.test.iml" filepath="$PROJECT_DIR$/.idea/modules/app/StudentGradingSystem.app.test.iml" />
++      <module fileurl="file://$PROJECT_DIR$/.idea/modules/StudentGradingSystem.main.iml" filepath="$PROJECT_DIR$/.idea/modules/StudentGradingSystem.main.iml" />
++      <module fileurl="file://$PROJECT_DIR$/.idea/modules/StudentGradingSystem.test.iml" filepath="$PROJECT_DIR$/.idea/modules/StudentGradingSystem.test.iml" />
+     </modules>
+   </component>
+ </project>
+\ No newline at end of file

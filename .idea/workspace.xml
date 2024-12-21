@@ -4,13 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="dfc62256-8cb8-4568-abab-3c5ffb2d9a35" name="Changes" comment="manage courses screen">
+    <list default="true" id="dfc62256-8cb8-4568-abab-3c5ffb2d9a35" name="Changes" comment="ADMİN DASHBOARD COMPLETED">
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources.local.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.local.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/6383f688-ccf4-41b7-a28b-3ea451366423.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/6383f688-ccf4-41b7-a28b-3ea451366423.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/sgs/Entities/Course.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/sgs/Entities/Course.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/sgs/Entities/User.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/sgs/Entities/User.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/sgs/Repository/CourseRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/sgs/Repository/CourseRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/sgs/Repository/UserRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/sgs/Repository/UserRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/sgs/View/AdminDashboard.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/sgs/View/AdminDashboard.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -191,7 +188,7 @@
       <option name="presentableId" value="Default" />
       <updated>1734775857016</updated>
       <workItem from="1734775857016" duration="3426000" />
-      <workItem from="1734802826862" duration="6891000" />
+      <workItem from="1734802826862" duration="9906000" />
     </task>
     <task id="LOCAL-00001" summary="Manage Users updated">
       <option name="closed" value="true" />
@@ -249,7 +246,23 @@
       <option name="project" value="LOCAL" />
       <updated>1734805744396</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="manage courses screen">
+      <option name="closed" value="true" />
+      <created>1734810021610</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1734810021610</updated>
+    </task>
+    <task id="LOCAL-00009" summary="ADMİN DASHBOARD COMPLETED">
+      <option name="closed" value="true" />
+      <created>1734812341686</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1734812341686</updated>
+    </task>
+    <option name="localTasksCounter" value="10" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -259,6 +272,7 @@
     <MESSAGE value="Manage Users updated" />
     <MESSAGE value="Add and Delete users updated" />
     <MESSAGE value="manage courses screen" />
-    <option name="LAST_COMMIT_MESSAGE" value="manage courses screen" />
+    <MESSAGE value="ADMİN DASHBOARD COMPLETED" />
+    <option name="LAST_COMMIT_MESSAGE" value="ADMİN DASHBOARD COMPLETED" />
   </component>
 </project>

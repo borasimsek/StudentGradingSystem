@@ -1,0 +1,144 @@
+Index: src/main/java/com/example/sgs/Service/AuthenticationService.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.example.sgs.Service;\r\n\r\nimport com.example.sgs.Entities.User;\r\nimport com.example.sgs.Repository.UserRepository;\r\nimport java.security.MessageDigest;\r\nimport java.security.NoSuchAlgorithmException;\r\nimport java.util.Optional;\r\n\r\npublic class AuthenticationService {\r\n\r\n    private UserRepository userRepository;\r\n\r\n    public AuthenticationService(UserRepository userRepository) {\r\n        this.userRepository = userRepository;\r\n    }\r\n\r\n    /**\r\n     * Register a new user with hashed password\r\n     */\r\n    public boolean register(String email, String password, User.UserType userType, String firstName, String lastName) {\r\n        // Check if email already exists\r\n        if (userRepository.findByEmail(email).isPresent()) {\r\n            System.out.println(\"Error: Email already exists for: \" + email);\r\n            return false;\r\n        }\r\n\r\n        // Hash the password\r\n        String passwordHash = hashPassword(password);\r\n        System.out.println(\"Registering user. Hashed password: \" + passwordHash); // Debug log\r\n\r\n        // Create a new user object\r\n        User newUser = new User(0, email, passwordHash, userType, firstName, lastName);\r\n\r\n        // Save the user to the database\r\n        boolean success = userRepository.save(newUser);\r\n        if (success) {\r\n            System.out.println(\"User registered successfully for email: \" + email);\r\n        } else {\r\n            System.out.println(\"Error saving user to the database for email: \" + email);\r\n        }\r\n        return success;\r\n    }\r\n\r\n    /**\r\n     * Hashes the plain text password using SHA-256\r\n     */\r\n    private String hashPassword(String password) {\r\n        try {\r\n            MessageDigest md = MessageDigest.getInstance(\"SHA-256\");\r\n            byte[] hash = md.digest(password.getBytes());\r\n            StringBuilder hexString = new StringBuilder();\r\n\r\n            for (byte b : hash) {\r\n                String hex = Integer.toHexString(0xff & b);\r\n                if (hex.length() == 1) hexString.append('0');\r\n                hexString.append(hex);\r\n            }\r\n            return hexString.toString();\r\n        } catch (NoSuchAlgorithmException e) {\r\n            throw new RuntimeException(\"Error hashing password\", e);\r\n        }\r\n    }\r\n\r\n    /**\r\n     * Login a user and validate the password\r\n     */\r\n    public User login(String email, String password) {\r\n        // Find user by email\r\n        Optional<User> userOptional = userRepository.findByEmail(email);\r\n\r\n        if (userOptional.isPresent()) {\r\n            User user = userOptional.get();\r\n\r\n            // Verify the password\r\n            String hashedPassword = hashPassword(password);\r\n            System.out.println(\"Logging in. Hashed input password: \" + hashedPassword);\r\n            System.out.println(\"Database password hash: \" + user.getPasswordHash());\r\n\r\n            if (verifyPassword(password, user.getPasswordHash())) {\r\n                System.out.println(\"Authentication successful for email: \" + email);\r\n                return user; // Authentication successful\r\n            } else {\r\n                System.out.println(\"Authentication failed: Passwords do not match for email: \" + email);\r\n            }\r\n        } else {\r\n            System.out.println(\"Authentication failed: User not found for email: \" + email);\r\n        }\r\n\r\n        return null; // Authentication failed\r\n    }\r\n\r\n    /**\r\n     * Verifies if the provided plain text password matches the hashed password in the database\r\n     */\r\n    private boolean verifyPassword(String plainPassword, String hashedPassword) {\r\n        // Compare the hashed input password with the stored hashed password\r\n        return hashPassword(plainPassword).equals(hashedPassword);\r\n    }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/com/example/sgs/Service/AuthenticationService.java b/src/main/java/com/example/sgs/Service/AuthenticationService.java
+--- a/src/main/java/com/example/sgs/Service/AuthenticationService.java	(revision 573c32b8ca73d8fdf75fe7f985253a1c61ac74c4)
++++ b/src/main/java/com/example/sgs/Service/AuthenticationService.java	(date 1734783952613)
+@@ -71,11 +71,13 @@
+         if (userOptional.isPresent()) {
+             User user = userOptional.get();
+ 
++            // Debug logs
++            System.out.println("Found user with email: " + email);
++            System.out.println("Input Password: " + password);
++            System.out.println("Hashed Input Password: " + hashPassword(password));
++            System.out.println("Stored Database Password Hash: " + user.getPasswordHash());
++
+             // Verify the password
+-            String hashedPassword = hashPassword(password);
+-            System.out.println("Logging in. Hashed input password: " + hashedPassword);
+-            System.out.println("Database password hash: " + user.getPasswordHash());
+-
+             if (verifyPassword(password, user.getPasswordHash())) {
+                 System.out.println("Authentication successful for email: " + email);
+                 return user; // Authentication successful
+@@ -94,6 +96,8 @@
+      */
+     private boolean verifyPassword(String plainPassword, String hashedPassword) {
+         // Compare the hashed input password with the stored hashed password
+-        return hashPassword(plainPassword).equals(hashedPassword);
++        boolean isMatch = hashPassword(plainPassword).equals(hashedPassword);
++        System.out.println("Password verification result: " + isMatch);
++        return isMatch;
+     }
+ }
+Index: src/main/java/com/example/sgs/Repository/UserRepository.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.example.sgs.Repository;\r\n\r\nimport com.example.sgs.Entities.User;\r\n\r\nimport java.sql.Connection;\r\nimport java.sql.PreparedStatement;\r\nimport java.sql.ResultSet;\r\nimport java.sql.SQLException;\r\nimport java.util.Optional;\r\n\r\npublic class UserRepository {\r\n\r\n    private final Connection connection;\r\n\r\n    /**\r\n     * Constructor to accept a database connection\r\n     */\r\n    public UserRepository(Connection connection) {\r\n        this.connection = connection;\r\n    }\r\n\r\n    /**\r\n     * Finds a user by their email address\r\n     */\r\n    public Optional<User> findByEmail(String email) {\r\n        String query = \"SELECT * FROM users WHERE email = ?\";\r\n        try (PreparedStatement stmt = connection.prepareStatement(query)) {\r\n            stmt.setString(1, email);\r\n\r\n            try (ResultSet rs = stmt.executeQuery()) {\r\n                if (rs.next()) {\r\n                    String userTypeString = rs.getString(\"user_type\").toUpperCase();\r\n\r\n                    // Enum güvenli dönüşümü\r\n                    User.UserType userType;\r\n                    try {\r\n                        userType = User.UserType.valueOf(userTypeString);\r\n                    } catch (IllegalArgumentException e) {\r\n                        System.err.println(\"Error: Invalid user type '\" + userTypeString + \"' in database for email: \" + email);\r\n                        e.printStackTrace();\r\n                        return Optional.empty();\r\n                    }\r\n\r\n                    return Optional.of(new User(\r\n                            rs.getInt(\"user_id\"),\r\n                            rs.getString(\"email\"),\r\n                            rs.getString(\"password_hash\"),\r\n                            userType,\r\n                            rs.getString(\"first_name\"),\r\n                            rs.getString(\"last_name\")\r\n                    ));\r\n                } else {\r\n                    System.out.println(\"No user found with email: \" + email);\r\n                }\r\n            }\r\n        } catch (SQLException e) {\r\n            System.err.println(\"Error finding user by email: \" + e.getMessage());\r\n            e.printStackTrace();\r\n        }\r\n        return Optional.empty(); // Return empty Optional if no user is found\r\n    }\r\n\r\n    /**\r\n     * Saves a user to the database\r\n     */\r\n    public boolean save(User user) {\r\n        String query = \"INSERT INTO users (email, password_hash, user_type, first_name, last_name) VALUES (?, ?, ?, ?, ?)\";\r\n        try (PreparedStatement stmt = connection.prepareStatement(query)) {\r\n            // Set parameters\r\n            stmt.setString(1, user.getEmail());\r\n            stmt.setString(2, user.getPasswordHash());\r\n            stmt.setString(3, user.getUserType().toString());\r\n            stmt.setString(4, user.getFirstName());\r\n            stmt.setString(5, user.getLastName());\r\n\r\n            // Execute update\r\n            int rowsInserted = stmt.executeUpdate();\r\n\r\n            // Log success or failure\r\n            if (rowsInserted > 0) {\r\n                System.out.println(\"User saved successfully: \" + user.getEmail());\r\n            } else {\r\n                System.err.println(\"Failed to save user: \" + user.getEmail());\r\n            }\r\n\r\n            return rowsInserted > 0;\r\n        } catch (SQLException e) {\r\n            System.err.println(\"Error saving user: \" + e.getMessage());\r\n            e.printStackTrace();\r\n        }\r\n        return false;\r\n    }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/com/example/sgs/Repository/UserRepository.java b/src/main/java/com/example/sgs/Repository/UserRepository.java
+--- a/src/main/java/com/example/sgs/Repository/UserRepository.java	(revision 573c32b8ca73d8fdf75fe7f985253a1c61ac74c4)
++++ b/src/main/java/com/example/sgs/Repository/UserRepository.java	(date 1734783982894)
+@@ -29,26 +29,30 @@
+ 
+             try (ResultSet rs = stmt.executeQuery()) {
+                 if (rs.next()) {
+-                    String userTypeString = rs.getString("user_type").toUpperCase();
++                    String userTypeString = rs.getString("user_type");
+ 
+                     // Enum güvenli dönüşümü
+                     User.UserType userType;
+                     try {
+-                        userType = User.UserType.valueOf(userTypeString);
++                        userType = User.UserType.valueOf(userTypeString.toUpperCase());
+                     } catch (IllegalArgumentException e) {
+                         System.err.println("Error: Invalid user type '" + userTypeString + "' in database for email: " + email);
+                         e.printStackTrace();
+                         return Optional.empty();
+                     }
+ 
+-                    return Optional.of(new User(
++                    // Kullanıcı nesnesini oluşturma
++                    User user = new User(
+                             rs.getInt("user_id"),
+                             rs.getString("email"),
+                             rs.getString("password_hash"),
+                             userType,
+                             rs.getString("first_name"),
+                             rs.getString("last_name")
+-                    ));
++                    );
++
++                    System.out.println("User found: " + user.getEmail());
++                    return Optional.of(user);
+                 } else {
+                     System.out.println("No user found with email: " + email);
+                 }
+Index: .idea/workspace.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<project version=\"4\">\r\n  <component name=\"AutoImportSettings\">\r\n    <option name=\"autoReloadType\" value=\"SELECTIVE\" />\r\n  </component>\r\n  <component name=\"ChangeListManager\">\r\n    <list default=\"true\" id=\"dfc62256-8cb8-4568-abab-3c5ffb2d9a35\" name=\"Changes\" comment=\"\">\r\n      <change beforePath=\"$PROJECT_DIR$/.idea/dataSources.local.xml\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/.idea/dataSources.local.xml\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/.idea/dataSources/6383f688-ccf4-41b7-a28b-3ea451366423.xml\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/.idea/dataSources/6383f688-ccf4-41b7-a28b-3ea451366423.xml\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/.idea/modules/StudentGradingSystem.iml\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/.idea/modules/StudentGradingSystem.iml\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/.idea/modules/StudentGradingSystem.main.iml\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/.idea/modules/StudentGradingSystem.main.iml\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/.idea/modules/StudentGradingSystem.test.iml\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/.idea/modules/StudentGradingSystem.test.iml\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/.idea/modules/app/StudentGradingSystem.app.iml\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/.idea/modules/app/StudentGradingSystem.app.iml\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/.idea/modules/app/StudentGradingSystem.app.main.iml\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/.idea/modules/app/StudentGradingSystem.app.main.iml\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/.idea/modules/app/StudentGradingSystem.app.test.iml\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/.idea/modules/app/StudentGradingSystem.app.test.iml\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/.idea/workspace.xml\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/.idea/workspace.xml\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/src/main/java/com/example/sgs/DatabaseConnection.java\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/src/main/java/com/example/sgs/DatabaseConnection.java\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/src/main/java/com/example/sgs/Repository/UserRepository.java\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/src/main/java/com/example/sgs/Repository/UserRepository.java\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/src/main/java/com/example/sgs/Service/AuthenticationService.java\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/src/main/java/com/example/sgs/Service/AuthenticationService.java\" afterDir=\"false\" />\r\n    </list>\r\n    <option name=\"SHOW_DIALOG\" value=\"false\" />\r\n    <option name=\"HIGHLIGHT_CONFLICTS\" value=\"true\" />\r\n    <option name=\"HIGHLIGHT_NON_ACTIVE_CHANGELIST\" value=\"false\" />\r\n    <option name=\"LAST_RESOLUTION\" value=\"IGNORE\" />\r\n  </component>\r\n  <component name=\"ExternalProjectsData\">\r\n    <projectState path=\"$PROJECT_DIR$\">\r\n      <ProjectState />\r\n    </projectState>\r\n  </component>\r\n  <component name=\"ExternalProjectsManager\">\r\n    <system id=\"GRADLE\">\r\n      <state>\r\n        <projects_view>\r\n          <tree_state>\r\n            <expand>\r\n              <path>\r\n                <item name=\"\" type=\"6a2764b6:ExternalProjectsStructure$RootNode\" />\r\n                <item name=\"StudentGradingSystem\" type=\"f1a62948:ProjectNode\" />\r\n              </path>\r\n            </expand>\r\n            <select />\r\n          </tree_state>\r\n        </projects_view>\r\n      </state>\r\n    </system>\r\n  </component>\r\n  <component name=\"Git.Settings\">\r\n    <option name=\"RECENT_GIT_ROOT_PATH\" value=\"$PROJECT_DIR$\" />\r\n  </component>\r\n  <component name=\"GitHubPullRequestSearchHistory\">{\r\n  &quot;lastFilter&quot;: {\r\n    &quot;state&quot;: &quot;OPEN&quot;,\r\n    &quot;assignee&quot;: &quot;borasimsek&quot;\r\n  }\r\n}</component>\r\n  <component name=\"GithubPullRequestsUISettings\">{\r\n  &quot;selectedUrlAndAccountId&quot;: {\r\n    &quot;url&quot;: &quot;https://github.com/borasimsek/StudentGradingSystem.git&quot;,\r\n    &quot;accountId&quot;: &quot;f5d56882-8945-4c68-a694-fd1cd3937a34&quot;\r\n  }\r\n}</component>\r\n  <component name=\"ProjectColorInfo\">{\r\n  &quot;associatedIndex&quot;: 6\r\n}</component>\r\n  <component name=\"ProjectId\" id=\"2qWQSvY2orKdDT5bmQk5YGt7WBl\" />\r\n  <component name=\"ProjectViewState\">\r\n    <option name=\"hideEmptyMiddlePackages\" value=\"true\" />\r\n    <option name=\"showLibraryContents\" value=\"true\" />\r\n  </component>\r\n  <component name=\"PropertiesComponent\">{\r\n  &quot;keyToString&quot;: {\r\n    &quot;Gradle.StudentGradingSystem [:com.example.sgs.Main.main()].executor&quot;: &quot;Run&quot;,\r\n    &quot;Gradle.StudentGradingSystem [:com.example.sgs.View.LoginPage.main()].executor&quot;: &quot;Run&quot;,\r\n    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,\r\n    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,\r\n    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,\r\n    &quot;git-widget-placeholder&quot;: &quot;main&quot;,\r\n    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,\r\n    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,\r\n    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,\r\n    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,\r\n    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,\r\n    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,\r\n    &quot;project.structure.last.edited&quot;: &quot;Project&quot;,\r\n    &quot;project.structure.proportion&quot;: &quot;0.0&quot;,\r\n    &quot;project.structure.side.proportion&quot;: &quot;0.0&quot;,\r\n    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;\r\n  }\r\n}</component>\r\n  <component name=\"RunManager\" selected=\"Application.LoginPage\">\r\n    <configuration default=\"true\" type=\"PythonConfigurationType\" factoryName=\"Python\">\r\n      <option name=\"ENV_FILES\" value=\"\" />\r\n      <option name=\"INTERPRETER_OPTIONS\" value=\"\" />\r\n      <option name=\"PARENT_ENVS\" value=\"true\" />\r\n      <envs>\r\n        <env name=\"PYTHONUNBUFFERED\" value=\"1\" />\r\n      </envs>\r\n      <option name=\"SDK_HOME\" value=\"\" />\r\n      <option name=\"WORKING_DIRECTORY\" value=\"\" />\r\n      <option name=\"IS_MODULE_SDK\" value=\"false\" />\r\n      <option name=\"ADD_CONTENT_ROOTS\" value=\"true\" />\r\n      <option name=\"ADD_SOURCE_ROOTS\" value=\"true\" />\r\n      <module name=\"\" />\r\n      <EXTENSION ID=\"PythonCoverageRunConfigurationExtension\" runner=\"coverage.py\" />\r\n      <option name=\"SCRIPT_NAME\" value=\"\" />\r\n      <option name=\"PARAMETERS\" value=\"\" />\r\n      <option name=\"SHOW_COMMAND_LINE\" value=\"false\" />\r\n      <option name=\"EMULATE_TERMINAL\" value=\"false\" />\r\n      <option name=\"MODULE_MODE\" value=\"false\" />\r\n      <option name=\"REDIRECT_INPUT\" value=\"false\" />\r\n      <option name=\"INPUT_FILE\" value=\"\" />\r\n      <method v=\"2\" />\r\n    </configuration>\r\n    <configuration default=\"true\" type=\"Python.FlaskServer\">\r\n      <option name=\"ENV_FILES\" value=\"\" />\r\n      <option name=\"INTERPRETER_OPTIONS\" value=\"\" />\r\n      <option name=\"PARENT_ENVS\" value=\"true\" />\r\n      <option name=\"SDK_HOME\" value=\"\" />\r\n      <option name=\"WORKING_DIRECTORY\" value=\"\" />\r\n      <option name=\"IS_MODULE_SDK\" value=\"false\" />\r\n      <option name=\"ADD_CONTENT_ROOTS\" value=\"true\" />\r\n      <option name=\"ADD_SOURCE_ROOTS\" value=\"true\" />\r\n      <module name=\"\" />\r\n      <EXTENSION ID=\"PythonCoverageRunConfigurationExtension\" runner=\"coverage.py\" />\r\n      <option name=\"launchJavascriptDebuger\" value=\"false\" />\r\n      <method v=\"2\" />\r\n    </configuration>\r\n    <configuration default=\"true\" type=\"Tox\" factoryName=\"Tox\">\r\n      <option name=\"ENV_FILES\" value=\"\" />\r\n      <option name=\"INTERPRETER_OPTIONS\" value=\"\" />\r\n      <option name=\"PARENT_ENVS\" value=\"true\" />\r\n      <option name=\"SDK_HOME\" value=\"\" />\r\n      <option name=\"WORKING_DIRECTORY\" value=\"\" />\r\n      <option name=\"IS_MODULE_SDK\" value=\"false\" />\r\n      <option name=\"ADD_CONTENT_ROOTS\" value=\"true\" />\r\n      <option name=\"ADD_SOURCE_ROOTS\" value=\"true\" />\r\n      <EXTENSION ID=\"PythonCoverageRunConfigurationExtension\" runner=\"coverage.py\" />\r\n      <method v=\"2\" />\r\n    </configuration>\r\n    <configuration name=\"LoginPage\" type=\"Application\" factoryName=\"Application\" temporary=\"true\" nameIsGenerated=\"true\">\r\n      <option name=\"MAIN_CLASS_NAME\" value=\"com.example.sgs.View.LoginPage\" />\r\n      <module name=\"StudentGradingSystem.main\" />\r\n      <extension name=\"coverage\">\r\n        <pattern>\r\n          <option name=\"PATTERN\" value=\"com.example.sgs.View.*\" />\r\n          <option name=\"ENABLED\" value=\"true\" />\r\n        </pattern>\r\n      </extension>\r\n      <method v=\"2\">\r\n        <option name=\"Make\" enabled=\"true\" />\r\n      </method>\r\n    </configuration>\r\n    <configuration name=\"Main\" type=\"Application\" factoryName=\"Application\" temporary=\"true\" nameIsGenerated=\"true\">\r\n      <option name=\"MAIN_CLASS_NAME\" value=\"com.example.sgs.Main\" />\r\n      <module name=\"StudentGradingSystem.main\" />\r\n      <extension name=\"coverage\">\r\n        <pattern>\r\n          <option name=\"PATTERN\" value=\"com.example.sgs.*\" />\r\n          <option name=\"ENABLED\" value=\"true\" />\r\n        </pattern>\r\n      </extension>\r\n      <method v=\"2\">\r\n        <option name=\"Make\" enabled=\"true\" />\r\n      </method>\r\n    </configuration>\r\n    <configuration default=\"true\" type=\"JetRunConfigurationType\">\r\n      <method v=\"2\">\r\n        <option name=\"Make\" enabled=\"true\" />\r\n      </method>\r\n    </configuration>\r\n    <configuration default=\"true\" type=\"KotlinStandaloneScriptRunConfigurationType\">\r\n      <option name=\"filePath\" />\r\n      <method v=\"2\" />\r\n    </configuration>\r\n    <recent_temporary>\r\n      <list>\r\n        <item itemvalue=\"Application.LoginPage\" />\r\n        <item itemvalue=\"Application.Main\" />\r\n      </list>\r\n    </recent_temporary>\r\n  </component>\r\n  <component name=\"SharedIndexes\">\r\n    <attachedChunks>\r\n      <set>\r\n        <option value=\"bundled-jdk-9823dce3aa75-fdfe4dae3a2d-intellij.indexing.shared.core-IU-243.22562.145\" />\r\n        <option value=\"bundled-js-predefined-d6986cc7102b-deb605915726-JavaScript-IU-243.22562.145\" />\r\n      </set>\r\n    </attachedChunks>\r\n  </component>\r\n  <component name=\"SpellCheckerSettings\" RuntimeDictionaries=\"0\" Folders=\"0\" CustomDictionaries=\"0\" DefaultDictionary=\"application-level\" UseSingleDictionary=\"true\" transferred=\"true\" />\r\n  <component name=\"TaskManager\">\r\n    <task active=\"true\" id=\"Default\" summary=\"Default task\">\r\n      <changelist id=\"dfc62256-8cb8-4568-abab-3c5ffb2d9a35\" name=\"Changes\" comment=\"\" />\r\n      <created>1734775857016</created>\r\n      <option name=\"number\" value=\"Default\" />\r\n      <option name=\"presentableId\" value=\"Default\" />\r\n      <updated>1734775857016</updated>\r\n      <workItem from=\"1734775857016\" duration=\"3426000\" />\r\n    </task>\r\n    <servers />\r\n  </component>\r\n  <component name=\"TypeScriptGeneratedFilesManager\">\r\n    <option name=\"version\" value=\"3\" />\r\n  </component>\r\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/workspace.xml b/.idea/workspace.xml
+--- a/.idea/workspace.xml	(revision 573c32b8ca73d8fdf75fe7f985253a1c61ac74c4)
++++ b/.idea/workspace.xml	(date 1734784420553)
+@@ -4,17 +4,8 @@
+     <option name="autoReloadType" value="SELECTIVE" />
+   </component>
+   <component name="ChangeListManager">
+-    <list default="true" id="dfc62256-8cb8-4568-abab-3c5ffb2d9a35" name="Changes" comment="">
+-      <change beforePath="$PROJECT_DIR$/.idea/dataSources.local.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.local.xml" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/6383f688-ccf4-41b7-a28b-3ea451366423.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/6383f688-ccf4-41b7-a28b-3ea451366423.xml" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/.idea/modules/StudentGradingSystem.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/StudentGradingSystem.iml" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/.idea/modules/StudentGradingSystem.main.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/StudentGradingSystem.main.iml" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/.idea/modules/StudentGradingSystem.test.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/StudentGradingSystem.test.iml" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/.idea/modules/app/StudentGradingSystem.app.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/app/StudentGradingSystem.app.iml" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/.idea/modules/app/StudentGradingSystem.app.main.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/app/StudentGradingSystem.app.main.iml" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/.idea/modules/app/StudentGradingSystem.app.test.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/app/StudentGradingSystem.app.test.iml" afterDir="false" />
++    <list default="true" id="dfc62256-8cb8-4568-abab-3c5ffb2d9a35" name="Changes" comment="login problem">
+       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/sgs/DatabaseConnection.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/sgs/DatabaseConnection.java" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/src/main/java/com/example/sgs/Repository/UserRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/sgs/Repository/UserRepository.java" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/src/main/java/com/example/sgs/Service/AuthenticationService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/sgs/Service/AuthenticationService.java" afterDir="false" />
+     </list>
+@@ -198,9 +189,30 @@
+       <updated>1734775857016</updated>
+       <workItem from="1734775857016" duration="3426000" />
+     </task>
++    <task id="LOCAL-00001" summary="login problem">
++      <option name="closed" value="true" />
++      <created>1734783326114</created>
++      <option name="number" value="00001" />
++      <option name="presentableId" value="LOCAL-00001" />
++      <option name="project" value="LOCAL" />
++      <updated>1734783326114</updated>
++    </task>
++    <task id="LOCAL-00002" summary="login problem">
++      <option name="closed" value="true" />
++      <created>1734784121570</created>
++      <option name="number" value="00002" />
++      <option name="presentableId" value="LOCAL-00002" />
++      <option name="project" value="LOCAL" />
++      <updated>1734784121570</updated>
++    </task>
++    <option name="localTasksCounter" value="3" />
+     <servers />
+   </component>
+   <component name="TypeScriptGeneratedFilesManager">
+     <option name="version" value="3" />
+   </component>
++  <component name="VcsManagerConfiguration">
++    <MESSAGE value="login problem" />
++    <option name="LAST_COMMIT_MESSAGE" value="login problem" />
++  </component>
+ </project>
+\ No newline at end of file

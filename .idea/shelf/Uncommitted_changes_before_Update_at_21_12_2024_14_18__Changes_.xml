@@ -1,0 +1,73 @@
+<changelist name="Uncommitted_changes_before_Update_at_21_12_2024_14_18_[Changes]" date="1734779909679" recycled="false" toDelete="true">
+  <option name="PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_21_12_2024_14_18_[Changes]/shelved.patch" />
+  <option name="DESCRIPTION" value="Uncommitted changes before Update at 21.12.2024 14:18 [Changes]" />
+  <binary>
+    <option name="BEFORE_PATH" value="out/production/sgs/Controller/GradeController.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="out/production/sgs/model/Prerequisite.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="out/production/sgs/Repository/CourseRepository.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="out/production/sgs/Controller/AccountController.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="out/production/sgs/Controller/AuthenticationController.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="out/production/sgs/Repository/GradeRepository.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="out/production/sgs/Repository/TimeTableRepository.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="out/production/sgs/main/Main.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="out/production/sgs/model/Grade.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="out/production/sgs/model/GPA.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="out/production/sgs/Controller/AdminController.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="out/production/sgs/Controller/CourseController.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="out/production/sgs/Entities/AccountEntity.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="out/production/sgs/model/Course.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="out/production/sgs/Controller/GPAController.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="out/production/sgs/model/Admin.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="out/production/sgs/model/Student.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="out/production/sgs/model/Instructor.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="out/production/sgs/Repository/UserRepository.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="out/production/sgs/model/User.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="out/production/sgs/model/Timetable.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="out/production/sgs/Controller/TimetableController.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="out/production/sgs/Repository/GPARepository.class" />
+  </binary>
+</changelist>

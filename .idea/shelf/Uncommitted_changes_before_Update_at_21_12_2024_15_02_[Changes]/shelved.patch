@@ -1,0 +1,65 @@
+Index: .idea/modules.xml
+===================================================================
+diff --git a/.idea/modules.xml b/.idea/modules.xml
+deleted file mode 100644
+--- a/.idea/modules.xml	(revision 21728162dcaee6a67be0560b65331e180ca7a469)
++++ /dev/null	(revision 21728162dcaee6a67be0560b65331e180ca7a469)
+@@ -1,8 +0,0 @@
+-<?xml version="1.0" encoding="UTF-8"?>
+-<project version="4">
+-  <component name="ProjectModuleManager">
+-    <modules>
+-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/StudentGradingSystem.iml" filepath="$PROJECT_DIR$/.idea/modules/StudentGradingSystem.iml" />
+-    </modules>
+-  </component>
+-</project>
+\ No newline at end of file
+Index: .idea/dataSources.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<project version=\"4\">\r\n  <component name=\"DataSourceManagerImpl\" format=\"xml\" multifile-model=\"true\">\r\n    <data-source source=\"LOCAL\" name=\"sgs@127.0.0.1\" uuid=\"6383f688-ccf4-41b7-a28b-3ea451366423\">\r\n      <driver-ref>mysql.8</driver-ref>\r\n      <synchronize>true</synchronize>\r\n      <jdbc-driver>com.mysql.cj.jdbc.Driver</jdbc-driver>\r\n      <jdbc-url>jdbc:mysql://127.0.0.1:3306/sgs</jdbc-url>\r\n      <jdbc-additional-properties>\r\n        <property name=\"com.intellij.clouds.kubernetes.db.host.port\" />\r\n        <property name=\"com.intellij.clouds.kubernetes.db.enabled\" value=\"false\" />\r\n        <property name=\"com.intellij.clouds.kubernetes.db.container.port\" />\r\n      </jdbc-additional-properties>\r\n      <working-dir>$ProjectFileDir$</working-dir>\r\n    </data-source>\r\n  </component>\r\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/dataSources.xml b/.idea/dataSources.xml
+--- a/.idea/dataSources.xml	(revision 21728162dcaee6a67be0560b65331e180ca7a469)
++++ b/.idea/dataSources.xml	(date 1734781083978)
+@@ -9,6 +9,19 @@
+       <jdbc-additional-properties>
+         <property name="com.intellij.clouds.kubernetes.db.host.port" />
+         <property name="com.intellij.clouds.kubernetes.db.enabled" value="false" />
++        <property name="com.intellij.clouds.kubernetes.db.resource.type" value="Deployment" />
++        <property name="com.intellij.clouds.kubernetes.db.container.port" />
++      </jdbc-additional-properties>
++      <working-dir>$ProjectFileDir$</working-dir>
++    </data-source>
++    <data-source source="LOCAL" name="sgs@127.0.0.1 [2]" uuid="bc7f6a3a-f270-408f-a006-3e70785da11f">
++      <driver-ref>mysql.8</driver-ref>
++      <synchronize>true</synchronize>
++      <jdbc-driver>com.mysql.cj.jdbc.Driver</jdbc-driver>
++      <jdbc-url>jdbc:mysql://127.0.0.1:3306/sgs</jdbc-url>
++      <jdbc-additional-properties>
++        <property name="com.intellij.clouds.kubernetes.db.host.port" />
++        <property name="com.intellij.clouds.kubernetes.db.enabled" value="false" />
+         <property name="com.intellij.clouds.kubernetes.db.container.port" />
+       </jdbc-additional-properties>
+       <working-dir>$ProjectFileDir$</working-dir>
+Index: src/main/java/com/example/sgs/DatabaseConnection.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.example.sgs;\r\nimport java.sql.Connection;\r\nimport java.sql.DriverManager;\r\nimport java.sql.SQLException;\r\n\r\npublic class DatabaseConnection {\r\n\r\n    // Database URL, username, and password\r\n    private static final String URL = \"jdbc:mysql://127.0.0.1:3306/sgs\";\r\n    private static final String USER = \"root\"; //\r\n    private static final String PASSWORD = \"2023\"; //\r\n    private static Connection connection = null;\r\n    public static Connection getConnection() {\r\n        if (connection == null) {\r\n            try {\r\n                // Load and register MySQL JDBC driver\r\n                Class.forName(\"com.mysql.cj.jdbc.Driver\");\r\n\r\n                // Establish the connection\r\n                connection = DriverManager.getConnection(URL, USER, PASSWORD);\r\n            } catch (ClassNotFoundException | SQLException e) {\r\n                e.printStackTrace();\r\n                throw new RuntimeException(\"Failed to establish a database connection.\");\r\n            }\r\n        }\r\n        return connection;\r\n    }\r\n\r\n    // Close the connection (good practice to close it when done)\r\n    public static void closeConnection() {\r\n        if (connection != null) {\r\n            try {\r\n                connection.close();\r\n                System.out.println(\"Connection closed.\");\r\n            } catch (SQLException e) {\r\n                e.printStackTrace();\r\n            }\r\n        }\r\n    }\r\n\r\n\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/com/example/sgs/DatabaseConnection.java b/src/main/java/com/example/sgs/DatabaseConnection.java
+--- a/src/main/java/com/example/sgs/DatabaseConnection.java	(revision 21728162dcaee6a67be0560b65331e180ca7a469)
++++ b/src/main/java/com/example/sgs/DatabaseConnection.java	(date 1734781083410)
+@@ -8,7 +8,7 @@
+     // Database URL, username, and password
+     private static final String URL = "jdbc:mysql://127.0.0.1:3306/sgs";
+     private static final String USER = "root"; //
+-    private static final String PASSWORD = "2023"; //
++    private static final String PASSWORD = "mertarda12"; //
+     private static Connection connection = null;
+     public static Connection getConnection() {
+         if (connection == null) {
