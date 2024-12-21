@@ -2,8 +2,17 @@ package com.example.sgs.View;
 
 import javax.swing.*;
 import java.awt.*;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.*;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
+
+import com.example.sgs.Entities.User;
+import com.example.sgs.Repository.UserRepository;
+import com.example.sgs.DatabaseConnection;
+
+import static javax.swing.JOptionPane.YES_OPTION;
 
 public class AdminDashboard extends JFrame {
     private static int courseCodeNumber = 100; // Ders kodu başlangıç numarası
@@ -53,7 +62,7 @@ public class AdminDashboard extends JFrame {
         manageUsersButton.addActionListener(e -> switchCard(mainPanel, "Manage Users"));
         logOutButton.addActionListener(e -> {
             int confirm = JOptionPane.showConfirmDialog(null, "Are you sure you want to log out?", "Log Out", JOptionPane.YES_NO_OPTION);
-            if (confirm == JOptionPane.YES_OPTION) System.exit(0);
+            if (confirm == YES_OPTION) System.exit(0);
         });
 
         mainMenu.add(title);
@@ -68,113 +77,47 @@ public class AdminDashboard extends JFrame {
         JLabel title = new JLabel("Manage Courses", SwingConstants.CENTER);
         title.setFont(new Font("Arial", Font.BOLD, 16));
 
-        JPanel courseForm = new JPanel(new GridLayout(10, 2, 10, 10));
+        JPanel courseForm = new JPanel(new GridLayout(5, 2, 10, 10));
         JTextField courseNameField = new JTextField();
-        JComboBox<String> facultyDropdown = new JComboBox<>(new String[]{"Engineering", "Business", "Law", "Architecture", "Others"});
         JTextField courseCodeField = new JTextField();
-        JLabel generatedCodeLabel = new JLabel("Generated Code:");
-        JTextField quotaField = new JTextField();
-
-        JComboBox<String> instructorDropdown = new JComboBox<>(new String[]{"Instructor A", "Instructor B", "Instructor C"});
-        JComboBox<String> buildingDropdown = new JComboBox<>(new String[]{"AB1", "AB2", "AB3", "AB4", "AB5"});
-        JComboBox<String> classDropdown = new JComboBox<>(generateClassOptions());
-
-        JComboBox<String> startTimeDropdown = new JComboBox<>(generateTimeOptions(8, 40, 16, 40, 60));
-        JComboBox<String> endTimeDropdown = new JComboBox<>(generateTimeOptions(9, 30, 18, 30, 60));
 
         JButton saveCourseButton = new JButton("Save Course");
-        JButton deleteCourseButton = new JButton("Delete Course");
         JButton backButton = new JButton("Back to Main Menu");
 
-        // Ders kaydetme işlemi
         saveCourseButton.addActionListener(e -> {
             String courseName = courseNameField.getText();
-            String faculty = (String) facultyDropdown.getSelectedItem();
-            String coursePrefix = courseCodeField.getText().toUpperCase();
-            String quota = quotaField.getText();
-            String instructor = (String) instructorDropdown.getSelectedItem();
-            String building = (String) buildingDropdown.getSelectedItem();
-            String classroom = (String) classDropdown.getSelectedItem();
-            String startTime = (String) startTimeDropdown.getSelectedItem();
-            String endTime = (String) endTimeDropdown.getSelectedItem();
+            String courseCode = courseCodeField.getText().toUpperCase();
 
-            if (coursePrefix.length() < 2 || coursePrefix.length() > 3 || usedCourseCodes.contains(coursePrefix)) {
-                JOptionPane.showMessageDialog(null, "Invalid or duplicate course code.", "Error", JOptionPane.ERROR_MESSAGE);
+            if (courseName.isEmpty() || courseCode.isEmpty()) {
+                JOptionPane.showMessageDialog(null, "Please fill in all fields.", "Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
 
-            String generatedCode = coursePrefix + courseCodeNumber++;
-            usedCourseCodes.add(coursePrefix);
+            if (usedCourseCodes.contains(courseCode)) {
+                JOptionPane.showMessageDialog(null, "Course code already used.", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
 
-            String courseDetails = String.format("%s (%s) - %s - %s - %s - %s - %s", courseName, faculty, generatedCode, building, classroom, startTime, endTime);
-            savedCourses.put(generatedCode, courseDetails);
+            String generatedCode = courseCode + courseCodeNumber++;
+            usedCourseCodes.add(courseCode);
 
-            JOptionPane.showMessageDialog(null, "Course Created:\n" + courseDetails);
+            savedCourses.put(generatedCode, courseName);
+            JOptionPane.showMessageDialog(null, "Course Saved: " + courseName + " (" + generatedCode + ")");
 
-            // Formu sıfırla
+            // Clear fields
             courseNameField.setText("");
             courseCodeField.setText("");
-            quotaField.setText("");
-        });
-
-        // Ders silme işlemi
-        deleteCourseButton.addActionListener(e -> {
-            JFrame deleteFrame = new JFrame("Delete Course");
-            deleteFrame.setSize(400, 300);
-            deleteFrame.setLayout(new BorderLayout());
-
-            JList<String> courseList = new JList<>(savedCourses.values().toArray(new String[0]));
-            JScrollPane scrollPane = new JScrollPane(courseList);
-
-            JButton deleteButton = new JButton("Delete Selected Course");
-            deleteButton.addActionListener(ev -> {
-                String selectedCourse = courseList.getSelectedValue();
-                if (selectedCourse != null) {
-                    String codeToDelete = savedCourses.entrySet().stream()
-                            .filter(entry -> entry.getValue().equals(selectedCourse))
-                            .map(Map.Entry::getKey)
-                            .findFirst().orElse(null);
-
-                    if (codeToDelete != null) {
-                        savedCourses.remove(codeToDelete);
-                        usedCourseCodes.remove(codeToDelete.substring(0, 2));
-                        courseList.setListData(savedCourses.values().toArray(new String[0]));
-                        JOptionPane.showMessageDialog(deleteFrame, "Course Deleted: " + selectedCourse);
-                    }
-                }
-            });
-
-            deleteFrame.add(scrollPane, BorderLayout.CENTER);
-            deleteFrame.add(deleteButton, BorderLayout.SOUTH);
-            deleteFrame.setVisible(true);
         });
 
         backButton.addActionListener(e -> switchCard(mainPanel, "Main Menu"));
 
         courseForm.add(new JLabel("Course Name:"));
         courseForm.add(courseNameField);
-        courseForm.add(new JLabel("Faculty:"));
-        courseForm.add(facultyDropdown);
         courseForm.add(new JLabel("Course Code:"));
         courseForm.add(courseCodeField);
-        courseForm.add(new JLabel("Generated Code:"));
-        courseForm.add(generatedCodeLabel);
-        courseForm.add(new JLabel("Quota:"));
-        courseForm.add(quotaField);
-        courseForm.add(new JLabel("Instructor:"));
-        courseForm.add(instructorDropdown);
-        courseForm.add(new JLabel("Building:"));
-        courseForm.add(buildingDropdown);
-        courseForm.add(new JLabel("Classroom:"));
-        courseForm.add(classDropdown);
-        courseForm.add(new JLabel("Start Time:"));
-        courseForm.add(startTimeDropdown);
-        courseForm.add(new JLabel("End Time:"));
-        courseForm.add(endTimeDropdown);
 
         JPanel buttonsPanel = new JPanel();
         buttonsPanel.add(saveCourseButton);
-        buttonsPanel.add(deleteCourseButton);
         buttonsPanel.add(backButton);
 
         manageCoursesPanel.add(title, BorderLayout.NORTH);
@@ -197,62 +140,47 @@ public class AdminDashboard extends JFrame {
         JLabel userNumberLabel = new JLabel("User Number:");
 
         JButton addUserButton = new JButton("Add User");
-        JButton deleteUserButton = new JButton("Delete User");
         JButton backButton = new JButton("Back to Main Menu");
 
-        // Kullanıcı adı ve soyadı değişiminde e-posta ve numara oluşturma
-        userNameField.addCaretListener(e -> updateUserInfo(userNameField, userSurnameField, userTypeDropdown, emailLabel, userNumberLabel, false));
-        userSurnameField.addCaretListener(e -> updateUserInfo(userNameField, userSurnameField, userTypeDropdown, emailLabel, userNumberLabel, false));
-        userTypeDropdown.addActionListener(e -> updateUserInfo(userNameField, userSurnameField, userTypeDropdown, emailLabel, userNumberLabel, false));
+        // Kullanıcı adı ve soyadı değişiminde dinamik e-posta güncelleme
+        userNameField.addCaretListener(e -> updateUserInfo(userNameField, userSurnameField, userTypeDropdown, emailLabel, userNumberLabel));
+        userSurnameField.addCaretListener(e -> updateUserInfo(userNameField, userSurnameField, userTypeDropdown, emailLabel, userNumberLabel));
 
-        // Kullanıcı ekleme
+        // Kullanıcı ekleme işlemi
         addUserButton.addActionListener(e -> {
             String userName = userNameField.getText();
             String userSurname = userSurnameField.getText();
             String email = emailLabel.getText();
-            String userNumber = userNumberLabel.getText();
+            String userType = (String) userTypeDropdown.getSelectedItem();
 
-            if (userName.isEmpty() || userSurname.isEmpty()) {
+            if (userName.isEmpty() || userSurname.isEmpty() || email.isEmpty()) {
                 JOptionPane.showMessageDialog(null, "Please fill in all fields.", "Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
 
-            savedUsers.add(String.format("%s %s - %s - %s", userName, userSurname, email, userNumber));
-            JOptionPane.showMessageDialog(null, "User Added:\nName: " + userName + " " + userSurname + "\nEmail: " + email + "\nNumber: " + userNumber);
+            // Şifreyi isim + soyisim + 5 rastgele rakam ile oluştur
+            String generatedPassword = generatePassword(userName, userSurname);
 
-            // Numara sadece kaydetme sırasında artırılır
-            String type = (String) userTypeDropdown.getSelectedItem();
-            if (type.equals("Student")) studentNumber++;
-            if (type.equals("Instructor")) instructorNumber++;
-            if (type.equals("Admin")) adminNumber++;
+            try {
+                UserRepository userRepository = new UserRepository(DatabaseConnection.getConnection());
+                String hashedPassword = hashPassword(generatedPassword);
+
+                User newUser = new User(0, email, hashedPassword, User.UserType.valueOf(userType.toUpperCase()), userName, userSurname);
+                boolean isSaved = userRepository.save(newUser);
+
+                if (isSaved) {
+                    JOptionPane.showMessageDialog(null, "User Added Successfully!\nGenerated Password: " + generatedPassword);
+                } else {
+                    JOptionPane.showMessageDialog(null, "Failed to add user. Try again.", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                JOptionPane.showMessageDialog(null, "An error occurred while adding the user.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
 
             // Formu sıfırla
             userNameField.setText("");
             userSurnameField.setText("");
-        });
-
-        // Kullanıcı silme işlemi
-        deleteUserButton.addActionListener(e -> {
-            JFrame deleteFrame = new JFrame("Delete User");
-            deleteFrame.setSize(400, 300);
-            deleteFrame.setLayout(new BorderLayout());
-
-            JList<String> userList = new JList<>(savedUsers.toArray(new String[0]));
-            JScrollPane scrollPane = new JScrollPane(userList);
-
-            JButton deleteButton = new JButton("Delete Selected User");
-            deleteButton.addActionListener(ev -> {
-                String selectedUser = userList.getSelectedValue();
-                if (selectedUser != null) {
-                    savedUsers.remove(selectedUser);
-                    userList.setListData(savedUsers.toArray(new String[0]));
-                    JOptionPane.showMessageDialog(deleteFrame, "User Deleted: " + selectedUser);
-                }
-            });
-
-            deleteFrame.add(scrollPane, BorderLayout.CENTER);
-            deleteFrame.add(deleteButton, BorderLayout.SOUTH);
-            deleteFrame.setVisible(true);
         });
 
         backButton.addActionListener(e -> switchCard(mainPanel, "Main Menu"));
@@ -270,7 +198,6 @@ public class AdminDashboard extends JFrame {
 
         JPanel buttonsPanel = new JPanel();
         buttonsPanel.add(addUserButton);
-        buttonsPanel.add(deleteUserButton);
         buttonsPanel.add(backButton);
 
         manageUsersPanel.add(title, BorderLayout.NORTH);
@@ -280,12 +207,19 @@ public class AdminDashboard extends JFrame {
         return manageUsersPanel;
     }
 
-    private static void updateUserInfo(JTextField nameField, JTextField surnameField, JComboBox<String> typeDropdown, JLabel emailLabel, JLabel numberLabel, boolean increment) {
-        String name = nameField.getText().toLowerCase().replaceAll("\\s", "");
-        String surname = surnameField.getText().toLowerCase();
-        String email = name + "." + surname + "@edu.tr";
-        emailLabel.setText(email);
+    private static void updateUserInfo(JTextField nameField, JTextField surnameField, JComboBox<String> typeDropdown, JLabel emailLabel, JLabel numberLabel) {
+        String name = nameField.getText().trim().toLowerCase().replaceAll("\\s", "");
+        String surname = surnameField.getText().trim().toLowerCase().replaceAll("\\s", "");
 
+        // E-posta oluşturma
+        if (!name.isEmpty() && !surname.isEmpty()) {
+            String email = name + "." + surname + "@edu.tr";
+            emailLabel.setText(email);
+        } else {
+            emailLabel.setText("Email:");
+        }
+
+        // Kullanıcı numarası
         String type = (String) typeDropdown.getSelectedItem();
         String number = switch (type) {
             case "Student" -> "S" + String.format("%05d", studentNumber);
@@ -296,30 +230,31 @@ public class AdminDashboard extends JFrame {
         numberLabel.setText(number);
     }
 
-    private static String[] generateTimeOptions(int startHour, int startMinute, int endHour, int endMinute, int incrementMinutes) {
-        List<String> times = new ArrayList<>();
-        for (int hour = startHour; hour <= endHour; hour++) {
-            int minute = (hour == startHour) ? startMinute : 0;
-            while (minute < 60 && (hour < endHour || (hour == endHour && minute <= endMinute))) {
-                times.add(String.format("%02d:%02d", hour, minute));
-                minute += incrementMinutes;
-            }
-        }
-        return times.toArray(new String[0]);
-    }
-
-    private static String[] generateClassOptions() {
-        List<String> classes = new ArrayList<>();
-        for (int block = 100; block <= 400; block += 100) {
-            for (int room = block; room <= block + 30; room++) {
-                classes.add(String.valueOf(room));
-            }
-        }
-        return classes.toArray(new String[0]);
+    private static String generatePassword(String firstName, String lastName) {
+        String namePart = firstName.toLowerCase() + lastName.toLowerCase();
+        int randomNumber = ThreadLocalRandom.current().nextInt(10000, 99999); // 5 haneli rastgele sayı
+        return namePart + randomNumber;
     }
 
     private static void switchCard(JPanel mainPanel, String cardName) {
         CardLayout cardLayout = (CardLayout) mainPanel.getLayout();
         cardLayout.show(mainPanel, cardName);
+    }
+
+    private static String hashPassword(String password) {
+        try {
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            byte[] hash = md.digest(password.getBytes());
+            StringBuilder hexString = new StringBuilder();
+
+            for (byte b : hash) {
+                String hex = Integer.toHexString(0xff & b);
+                if (hex.length() == 1) hexString.append('0');
+                hexString.append(hex);
+            }
+            return hexString.toString();
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException("Error hashing password", e);
+        }
     }
 }

@@ -5,18 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="dfc62256-8cb8-4568-abab-3c5ffb2d9a35" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources.local.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.local.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/6383f688-ccf4-41b7-a28b-3ea451366423.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/6383f688-ccf4-41b7-a28b-3ea451366423.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/StudentGradingSystem.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/StudentGradingSystem.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/StudentGradingSystem.main.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/StudentGradingSystem.main.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/StudentGradingSystem.test.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/StudentGradingSystem.test.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/app/StudentGradingSystem.app.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/app/StudentGradingSystem.app.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/app/StudentGradingSystem.app.main.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/app/StudentGradingSystem.app.main.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/app/StudentGradingSystem.app.test.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/app/StudentGradingSystem.app.test.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/sgs/DatabaseConnection.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/sgs/DatabaseConnection.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/sgs/Repository/UserRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/sgs/Repository/UserRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/sgs/Service/AuthenticationService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/sgs/Service/AuthenticationService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/sgs/View/AdminDashboard.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/sgs/View/AdminDashboard.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
