@@ -8,7 +8,9 @@ import java.util.*;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
+import com.example.sgs.Entities.Course;
 import com.example.sgs.Entities.User;
+import com.example.sgs.Repository.CourseRepository;
 import com.example.sgs.Repository.UserRepository;
 import com.example.sgs.DatabaseConnection;
 
@@ -77,48 +79,105 @@ public class AdminDashboard extends JFrame {
         JLabel title = new JLabel("Manage Courses", SwingConstants.CENTER);
         title.setFont(new Font("Arial", Font.BOLD, 16));
 
-        JPanel courseForm = new JPanel(new GridLayout(5, 2, 10, 10));
+        JPanel courseForm = new JPanel(new GridLayout(10, 2, 10, 10));
+
+        // Giriş alanları
         JTextField courseNameField = new JTextField();
-        JTextField courseCodeField = new JTextField();
+        JComboBox<String> facultyComboBox = new JComboBox<>(new String[]{"Engineering", "Law", "Business", "Language", "Aviation", "Others"});
+        JTextField courseCodeField = new JTextField(); // Kullanıcıdan alınan kısaltma
+        JLabel generatedIdLabel = new JLabel("Generated ID: N/A"); // Otomatik ID
+        JTextField creditField = new JTextField();
+        JTextField quotaField = new JTextField();
+        JTextField yearField = new JTextField();
+        JComboBox<String> termComboBox = new JComboBox<>(new String[]{"Fall", "Spring", "Summer"});
+        JComboBox<String> dayComboBox = new JComboBox<>(new String[]{"Monday", "Tuesday", "Wednesday", "Thursday", "Friday"});
+        JComboBox<String> startTimeComboBox = new JComboBox<>(new String[]{"8:40", "9:40", "10:40", "11:40", "12:40", "13:40", "14:40", "15:40", "16:40", "17:40"});
+        JComboBox<String> endTimeComboBox = new JComboBox<>(new String[]{"9:30", "10:30", "11:30", "12:30", "13:30", "14:30", "15:30", "16:30", "17:30", "18:30", "19:30"});
+        JComboBox<String> buildingComboBox = new JComboBox<>(new String[]{"AB1", "AB2", "AB3", "AB4", "AB5"});
+        JComboBox<String> roomComboBox = new JComboBox<>(new String[]{"100", "101", "102", "103", "104", "105"}); // Dinamik yapılabilir.
+        JComboBox<User> instructorComboBox = new JComboBox<>(); // Veri tabanından yükleme yapılacak.
 
+        // Course Repository için bağlantı
+        CourseRepository courseRepository = new CourseRepository(DatabaseConnection.getConnection());
+
+        // Instructorları yükleme
+        try {
+            UserRepository userRepository = new UserRepository(DatabaseConnection.getConnection());
+            List<User> instructors = userRepository.findAllInstructors(); // Tüm instructorları getir.
+            for (User instructor : instructors) {
+                instructorComboBox.addItem(instructor); // ComboBox’a ekle.
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, "Error loading instructors: " + e.getMessage());
+        }
+
+        // Save Course Button
         JButton saveCourseButton = new JButton("Save Course");
-        JButton backButton = new JButton("Back to Main Menu");
-
         saveCourseButton.addActionListener(e -> {
             String courseName = courseNameField.getText();
+            String faculty = (String) facultyComboBox.getSelectedItem();
             String courseCode = courseCodeField.getText().toUpperCase();
+            int credits = Integer.parseInt(creditField.getText());
+            int quota = Integer.parseInt(quotaField.getText());
+            int year = Integer.parseInt(yearField.getText());
+            String term = (String) termComboBox.getSelectedItem();
+            String day = (String) dayComboBox.getSelectedItem();
+            String startTime = (String) startTimeComboBox.getSelectedItem();
+            String endTime = (String) endTimeComboBox.getSelectedItem();
+            String building = (String) buildingComboBox.getSelectedItem();
+            String room = (String) roomComboBox.getSelectedItem();
+            User instructor = (User) instructorComboBox.getSelectedItem();
 
-            if (courseName.isEmpty() || courseCode.isEmpty()) {
-                JOptionPane.showMessageDialog(null, "Please fill in all fields.", "Error", JOptionPane.ERROR_MESSAGE);
-                return;
+            // Fakülteye göre ID oluşturma
+            int generatedId = courseRepository.getNextCourseId(faculty); // Fakülteye göre ID al.
+            generatedIdLabel.setText("Generated ID: " + generatedId);
+
+            Course newCourse = new Course(
+                    generatedId, courseName, courseCode, instructor, credits, quota, year,
+                    Course.Term.valueOf(term.toUpperCase()), faculty
+            );
+
+            // Veritabanına kaydet
+            boolean success = courseRepository.save(newCourse);
+            if (success) {
+                JOptionPane.showMessageDialog(null, "Course added successfully!");
+            } else {
+                JOptionPane.showMessageDialog(null, "Failed to add course.");
             }
-
-            if (usedCourseCodes.contains(courseCode)) {
-                JOptionPane.showMessageDialog(null, "Course code already used.", "Error", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-
-            String generatedCode = courseCode + courseCodeNumber++;
-            usedCourseCodes.add(courseCode);
-
-            savedCourses.put(generatedCode, courseName);
-            JOptionPane.showMessageDialog(null, "Course Saved: " + courseName + " (" + generatedCode + ")");
-
-            // Clear fields
-            courseNameField.setText("");
-            courseCodeField.setText("");
         });
-
-        backButton.addActionListener(e -> switchCard(mainPanel, "Main Menu"));
 
         courseForm.add(new JLabel("Course Name:"));
         courseForm.add(courseNameField);
+        courseForm.add(new JLabel("Faculty:"));
+        courseForm.add(facultyComboBox);
         courseForm.add(new JLabel("Course Code:"));
         courseForm.add(courseCodeField);
+        courseForm.add(new JLabel("Generated ID:"));
+        courseForm.add(generatedIdLabel);
+        courseForm.add(new JLabel("Credits:"));
+        courseForm.add(creditField);
+        courseForm.add(new JLabel("Quota:"));
+        courseForm.add(quotaField);
+        courseForm.add(new JLabel("Year:"));
+        courseForm.add(yearField);
+        courseForm.add(new JLabel("Term:"));
+        courseForm.add(termComboBox);
+        courseForm.add(new JLabel("Day:"));
+        courseForm.add(dayComboBox);
+        courseForm.add(new JLabel("Start Time:"));
+        courseForm.add(startTimeComboBox);
+        courseForm.add(new JLabel("End Time:"));
+        courseForm.add(endTimeComboBox);
+        courseForm.add(new JLabel("Building:"));
+        courseForm.add(buildingComboBox);
+        courseForm.add(new JLabel("Room:"));
+        courseForm.add(roomComboBox);
+        courseForm.add(new JLabel("Instructor:"));
+        courseForm.add(instructorComboBox);
 
         JPanel buttonsPanel = new JPanel();
         buttonsPanel.add(saveCourseButton);
-        buttonsPanel.add(backButton);
+        buttonsPanel.add(new JButton("Back to Main Menu"));
 
         manageCoursesPanel.add(title, BorderLayout.NORTH);
         manageCoursesPanel.add(courseForm, BorderLayout.CENTER);
@@ -126,6 +185,7 @@ public class AdminDashboard extends JFrame {
 
         return manageCoursesPanel;
     }
+
 
     private static JPanel createManageUsersPanel(JPanel mainPanel) {
         JPanel manageUsersPanel = new JPanel(new BorderLayout());

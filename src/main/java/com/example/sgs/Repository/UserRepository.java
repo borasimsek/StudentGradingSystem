@@ -197,5 +197,28 @@ public class UserRepository {
         return 1; // Eğer hiç kullanıcı yoksa, ID 1'den başlat
     }
 
+    // UserRepository.java
+    public List<User> findAllInstructors() {
+        List<User> instructors = new ArrayList<>();
+        String query = "SELECT * FROM users WHERE user_type = 'instructor'";
+        try (PreparedStatement stmt = connection.prepareStatement(query);
+             ResultSet rs = stmt.executeQuery()) {
+
+            while (rs.next()) {
+                instructors.add(new User(
+                        rs.getInt("user_id"),
+                        rs.getString("email"),
+                        null, // Şifreyi burada döndürmüyoruz
+                        User.UserType.INSTRUCTOR, // Enum
+                        rs.getString("first_name"),
+                        rs.getString("last_name")
+                ));
+            }
+        } catch (SQLException e) {
+            System.err.println("Error fetching instructors: " + e.getMessage());
+        }
+        return instructors;
+    }
+
 
 }

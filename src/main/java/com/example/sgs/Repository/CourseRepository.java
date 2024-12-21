@@ -2,6 +2,7 @@ package com.example.sgs.Repository;
 
 import com.example.sgs.Entities.Course;
 import com.example.sgs.Entities.Prerequisite;
+import com.example.sgs.Entities.User;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -145,4 +146,84 @@ public class CourseRepository {
                 rs.getString("faculty")
         );
     }
+
+    public List<User> findAllInstructors() {
+        String query = "SELECT * FROM users WHERE user_type = 'instructor'";
+        List<User> instructors = new ArrayList<>();
+
+        try (PreparedStatement stmt = connection.prepareStatement(query);
+             ResultSet rs = stmt.executeQuery()) {
+
+            while (rs.next()) {
+                User instructor = new User(
+                        rs.getInt("user_id"),
+                        rs.getString("email"),
+                        rs.getString("password_hash"),
+                        User.UserType.INSTRUCTOR,
+                        rs.getString("first_name"),
+                        rs.getString("last_name")
+                );
+                instructors.add(instructor);
+            }
+        } catch (SQLException e) {
+            System.err.println("Error fetching instructors: " + e.getMessage());
+        }
+
+        return instructors;
+    }
+
+    public int getNextCourseId(String faculty) {
+        int minId = 0, maxId = 0;
+
+        // Fakülteye göre ID aralıklarını belirle
+        switch (faculty) {
+            case "Engineering":
+                minId = 1;
+                maxId = 100;
+                break;
+            case "Law":
+                minId = 101;
+                maxId = 200;
+                break;
+            case "Business":
+                minId = 201;
+                maxId = 300;
+                break;
+            case "Language":
+                minId = 301;
+                maxId = 400;
+                break;
+            case "Aviation":
+                minId = 401;
+                maxId = 500;
+                break;
+            case "Others":
+                minId = 501;
+                maxId = 1000;
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid faculty: " + faculty);
+        }
+
+        String query = "SELECT MAX(course_id) AS max_id FROM courses WHERE course_id BETWEEN ? AND ?";
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+            stmt.setInt(1, minId);
+            stmt.setInt(2, maxId);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    int maxIdInRange = rs.getInt("max_id");
+                    if (maxIdInRange == 0) { // Eğer ID aralığında bir kurs yoksa
+                        return minId;
+                    }
+                    return maxIdInRange + 1; // Yeni kurs ID'sini oluştur
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error generating next course ID: " + e.getMessage());
+        }
+
+        return minId; // Hata durumunda varsayılan başlangıç ID'si
+    }
+
 }
