@@ -193,7 +193,7 @@ public class AdminDashboard extends JFrame {
                 deleteFrame.setSize(400, 300);
                 deleteFrame.setLayout(new BorderLayout());
 
-                JList<User> userList = new JList<>(users.toArray(new User[0]));
+                JList<User> userList = new JList<>(users.toArray(new User[0])); // Kullanıcıları listele
                 JScrollPane scrollPane = new JScrollPane(userList);
 
                 JButton confirmDeleteButton = new JButton("Delete Selected User");
@@ -218,6 +218,8 @@ public class AdminDashboard extends JFrame {
                 JOptionPane.showMessageDialog(null, "An error occurred while fetching users.", "Error", JOptionPane.ERROR_MESSAGE);
             }
         });
+
+
 
         backButton.addActionListener(e -> switchCard(mainPanel, "Main Menu"));
 
