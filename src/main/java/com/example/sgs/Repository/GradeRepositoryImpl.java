@@ -42,5 +42,4 @@ public class GradeRepositoryImpl {
             stmt.executeUpdate();
         }
     }
-    //test
 }
