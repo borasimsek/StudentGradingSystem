@@ -226,4 +226,97 @@ public class CourseRepository {
         return minId; // Hata durumunda varsayılan başlangıç ID'si
     }
 
+    public List<Course> findCoursesByRoomAndTime(String building, String room, String day, String startTime, String endTime, int year) {
+        List<Course> courses = new ArrayList<>();
+        String sql = "SELECT * FROM courses WHERE building = ? AND room = ? AND day = ? AND start_time = ? AND end_time = ? AND year = ?";
+
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, building);
+            statement.setString(2, room);
+            statement.setString(3, day);
+            statement.setString(4, startTime);
+            statement.setString(5, endTime);
+            statement.setInt(6, year);
+
+            ResultSet resultSet = statement.executeQuery();
+            while (resultSet.next()) {
+                courses.add(new Course(
+                        resultSet.getInt("id"),
+                        resultSet.getString("name"),
+                        resultSet.getString("code"),
+                        null, // Eğer dersle ilişkilendirilmiş eğitmen yoksa null olabilir.
+                        resultSet.getInt("credits"),
+                        resultSet.getInt("quota"),
+                        resultSet.getInt("year"),
+                        Course.Term.valueOf(resultSet.getString("term").toUpperCase()),
+                        resultSet.getString("faculty")
+                ));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return courses;
+    }
+
+    public boolean delete(int courseId) {
+        String sql = "DELETE FROM courses WHERE id = ?";
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setInt(1, courseId);
+            int rowsAffected = statement.executeUpdate();
+            return rowsAffected > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public List<Course> findAllCourses() {
+        List<Course> courses = new ArrayList<>();
+        String sql = "SELECT * FROM courses";
+
+        try (PreparedStatement statement = connection.prepareStatement(sql);
+             ResultSet resultSet = statement.executeQuery()) {
+
+            UserRepository userRepository = new UserRepository(connection);
+
+            while (resultSet.next()) {
+                // Eğitmen bilgisi için UserRepository kullanımı
+                User instructor = null;
+                int instructorId = resultSet.getInt("instructor_id");
+                if (instructorId != 0) { // Eğer instructor_id null değilse
+                    instructor = userRepository.findById(instructorId).orElse(null);
+                }
+
+                courses.add(new Course(
+                        resultSet.getInt("course_id"),
+                        resultSet.getString("course_name"),
+                        resultSet.getString("course_code"),
+                        instructor, // Eğitmen bilgisi atanır
+                        resultSet.getInt("credits"),
+                        resultSet.getInt("quota"),
+                        resultSet.getInt("year"),
+                        Course.Term.valueOf(resultSet.getString("term").toUpperCase()),
+                        resultSet.getString("faculty")
+                ));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return courses;
+    }
+
+
+    public int getNextCourseId() throws SQLException {
+        String query = "SELECT MAX(course_id) FROM courses";
+        try (PreparedStatement statement = connection.prepareStatement(query);
+             ResultSet resultSet = statement.executeQuery()) {
+            if (resultSet.next()) {
+                return resultSet.getInt(1) + 1;
+            }
+        }
+        return 1; // Eğer veritabanında hiç kayıt yoksa, ID 1 ile başlasın.
+    }
+
+
+
 }

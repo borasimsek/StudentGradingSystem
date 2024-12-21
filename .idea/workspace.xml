@@ -6,6 +6,10 @@
   <component name="ChangeListManager">
     <list default="true" id="dfc62256-8cb8-4568-abab-3c5ffb2d9a35" name="Changes" comment="manage courses screen">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/sgs/Entities/Course.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/sgs/Entities/Course.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/sgs/Entities/User.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/sgs/Entities/User.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/sgs/Repository/CourseRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/sgs/Repository/CourseRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/sgs/Repository/UserRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/sgs/Repository/UserRepository.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/example/sgs/View/AdminDashboard.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/sgs/View/AdminDashboard.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -187,7 +191,7 @@
       <option name="presentableId" value="Default" />
       <updated>1734775857016</updated>
       <workItem from="1734775857016" duration="3426000" />
-      <workItem from="1734802826862" duration="2848000" />
+      <workItem from="1734802826862" duration="6891000" />
     </task>
     <task id="LOCAL-00001" summary="Manage Users updated">
       <option name="closed" value="true" />
@@ -237,7 +241,15 @@
       <option name="project" value="LOCAL" />
       <updated>1734804756335</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="manage courses screen">
+      <option name="closed" value="true" />
+      <created>1734805744396</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1734805744396</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

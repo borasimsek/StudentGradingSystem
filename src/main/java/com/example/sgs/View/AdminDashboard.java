@@ -93,7 +93,7 @@ public class AdminDashboard extends JFrame {
         JTextField courseNameField = new JTextField(20);
         JComboBox<String> facultyComboBox = new JComboBox<>(new String[]{"Engineering", "Law", "Business", "Language", "Aviation", "Others"});
         JTextField courseCodePrefixField = new JTextField(5); // Kullanıcıdan alınan kısaltma
-        JLabel generatedIdLabel = new JLabel("Generated ID: N/A");
+        JLabel generatedIdLabel = new JLabel(" N/A");
         JTextField creditField = new JTextField(10);
         JTextField quotaField = new JTextField(10);
         JTextField yearField = new JTextField(10);
@@ -207,52 +207,131 @@ public class AdminDashboard extends JFrame {
 
         // ===== Course Code ID Oluşturma =====
         facultyComboBox.addActionListener(e -> {
-            String faculty = (String) facultyComboBox.getSelectedItem();
             try {
                 CourseRepository courseRepository = new CourseRepository(DatabaseConnection.getConnection());
-                int generatedId = courseRepository.getNextCourseId(faculty); // Fakülteye göre ID al.
-                generatedIdLabel.setText("Generated ID: " + courseCodePrefixField.getText().toUpperCase() + generatedId);
+                int nextId = courseRepository.getNextCourseId(); // Veritabanından sonraki ID'yi al
+                generatedIdLabel.setText(String.valueOf(nextId));
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(null, "Error generating course ID: " + ex.getMessage());
             }
         });
 
+
         // ===== Buton Paneli =====
         JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         JButton saveButton = new JButton("Save");
         JButton backButton = new JButton("Back");
+        JButton deleteButton = new JButton("Delete Course");
 
         buttonsPanel.add(saveButton);
+        buttonsPanel.add(deleteButton);
         buttonsPanel.add(backButton);
 
         saveButton.addActionListener(e -> {
             String courseName = courseNameField.getText();
             String faculty = (String) facultyComboBox.getSelectedItem();
             String courseCodePrefix = courseCodePrefixField.getText().toUpperCase();
-            String generatedId = generatedIdLabel.getText().replace("Generated ID: ", "");
+            String generatedId = generatedIdLabel.getText();
             int credits = Integer.parseInt(creditField.getText());
             int quota = Integer.parseInt(quotaField.getText());
             int year = Integer.parseInt(yearField.getText());
             String term = (String) termComboBox.getSelectedItem();
-            String day = (String) dayComboBox.getSelectedItem();
-            String startTime = (String) startTimeComboBox.getSelectedItem();
-            String endTime = (String) endTimeComboBox.getSelectedItem();
-            String building = (String) buildingComboBox.getSelectedItem();
-            String room = (String) roomComboBox.getSelectedItem();
-            User instructor = (User) instructorComboBox.getSelectedItem();
 
-            // Veritabanına kaydetme işlemi
-            CourseRepository courseRepository = new CourseRepository(DatabaseConnection.getConnection());
-            Course newCourse = new Course(
-                    Integer.parseInt(generatedId), courseName, courseCodePrefix + generatedId, instructor, credits, quota, year,
-                    Course.Term.valueOf(term.toUpperCase()), faculty
-            );
-            if (courseRepository.save(newCourse)) {
-                JOptionPane.showMessageDialog(null, "Course saved successfully!");
-            } else {
-                JOptionPane.showMessageDialog(null, "Failed to save course.");
+            // Instructor seçimini al
+            User selectedInstructor = (User) instructorComboBox.getSelectedItem();
+
+            // Instructor seçili mi kontrol et
+            if (selectedInstructor == null) {
+                JOptionPane.showMessageDialog(null, "Please select an instructor.", "Error", JOptionPane.ERROR_MESSAGE);
+                return; // Instructor seçilmezse işlemi durdur
+            }
+
+            try {
+                CourseRepository courseRepository = new CourseRepository(DatabaseConnection.getConnection());
+
+                Course newCourse = new Course(
+                        Integer.parseInt(generatedId),
+                        courseName,
+                        courseCodePrefix + generatedId,
+                        selectedInstructor, // Seçilen instructor burada atanıyor
+                        credits,
+                        quota,
+                        year,
+                        Course.Term.valueOf(term.toUpperCase()),
+                        faculty
+                );
+
+                if (courseRepository.save(newCourse)) {
+                    JOptionPane.showMessageDialog(null, "Course saved successfully!");
+                    // Alanları temizleme
+                    courseNameField.setText("");
+                    courseCodePrefixField.setText("");
+                    generatedIdLabel.setText("N/A");
+                    creditField.setText("");
+                    quotaField.setText("");
+                    yearField.setText("");
+                    facultyComboBox.setSelectedIndex(0);
+                    termComboBox.setSelectedIndex(0);
+                    instructorComboBox.setSelectedIndex(0); // Instructor seçimini sıfırlayın
+                } else {
+                    JOptionPane.showMessageDialog(null, "Failed to save course.");
+                }
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(null, "Error saving course: " + ex.getMessage());
             }
         });
+
+
+
+        deleteButton.addActionListener(e -> {
+            try {
+                CourseRepository courseRepository = new CourseRepository(DatabaseConnection.getConnection());
+                List<Course> courses = courseRepository.findAllCourses(); // Mevcut tüm dersleri al
+
+                if (courses.isEmpty()) {
+                    JOptionPane.showMessageDialog(null, "No courses available to delete.");
+                    return;
+                }
+
+                // Tabloyu oluştur
+                String[] columnNames = {"ID", "Name", "Year", "Term"};
+                Object[][] tableData = new Object[courses.size()][4];
+                for (int i = 0; i < courses.size(); i++) {
+                    Course course = courses.get(i);
+                    tableData[i][0] = course.getCourseId();
+                    tableData[i][1] = course.getCourseName();
+                    tableData[i][2] = course.getYear();
+                    tableData[i][3] = course.getTerm();
+                }
+
+                JTable table = new JTable(tableData, columnNames);
+                table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+                JScrollPane scrollPane = new JScrollPane(table);
+
+                int result = JOptionPane.showConfirmDialog(null, scrollPane, "Select Course to Delete",
+                        JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+
+                if (result == JOptionPane.OK_OPTION) {
+                    int selectedRow = table.getSelectedRow();
+                    if (selectedRow != -1) {
+                        int courseId = (int) tableData[selectedRow][0];
+                        boolean isDeleted = courseRepository.delete(courseId);
+                        if (isDeleted) {
+                            JOptionPane.showMessageDialog(null, "Course deleted successfully!");
+                        } else {
+                            JOptionPane.showMessageDialog(null, "Failed to delete course.");
+                        }
+                    } else {
+                        JOptionPane.showMessageDialog(null, "No course selected.");
+                    }
+                }
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(null, "Error deleting course: " + ex.getMessage());
+            }
+        });
+
+
+        backButton.addActionListener(e -> switchCard(mainPanel, "Main Menu"));
 
         // Ana Paneli Düzenleme
         manageCoursesPanel.add(formPanel, BorderLayout.WEST);

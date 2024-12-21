@@ -26,6 +26,8 @@ public class Course {
     }
 
     // Getters and Setters
+
+
     public int getCourseId() { return courseId; }
     public void setCourseId(int courseId) { this.courseId = courseId; }
 

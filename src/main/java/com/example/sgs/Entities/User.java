@@ -12,8 +12,13 @@ public class User {
     public enum UserType {
         STUDENT,
         INSTRUCTOR,
-        ADMIN
-    }
+        ADMIN;
+
+        public static UserType fromString(String value) {
+            return UserType.valueOf(value.toUpperCase());
+
+        }    }
+
 
     // Constructor
     public User(int userId, String email, String passwordHash, UserType userType, String firstName, String lastName) {

@@ -220,5 +220,29 @@ public class UserRepository {
         return instructors;
     }
 
+    public Optional<User> findById(int userId) {
+        String sql = "SELECT * FROM users WHERE user_id = ?";
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setInt(1, userId);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    return Optional.of(new User(
+                            resultSet.getInt("user_id"),
+                            resultSet.getString("email"),
+                            resultSet.getString("password_hash"),
+                            User.UserType.valueOf(resultSet.getString("user_type").toUpperCase().replace("İ","I")),
+                            resultSet.getString("first_name"),
+                            resultSet.getString("last_name")
+                    ));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return Optional.empty();
+    }
+
+
 
 }
